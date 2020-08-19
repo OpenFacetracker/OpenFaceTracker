@@ -4,4 +4,8 @@ lib/
 tmp/
 var/
 doc/*
-*.db
+!doc/Doxyfile.in
+database/
+.vscode/
+*.bat
+assets/

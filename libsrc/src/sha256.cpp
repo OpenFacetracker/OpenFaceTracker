@@ -20,8 +20,7 @@ namespace oft {
             0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
             0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-    Sha256::Sha256(bool _flag)
-        : ToolsBox(_flag) {
+    Sha256::Sha256() {
             this->m_h[0] = 0x6a09e667;
             this->m_h[1] = 0xbb67ae85;
             this->m_h[2] = 0x3c6ef372;
@@ -34,113 +33,104 @@ namespace oft {
             this->m_tot_len = 0;
         }
 
-    Sha256::Sha256(Sha256 const& obj)
-        : ToolsBox(obj) {
-            this->m_h[0] = 0x6a09e667;
-            this->m_h[1] = 0xbb67ae85;
-            this->m_h[2] = 0x3c6ef372;
-            this->m_h[3] = 0xa54ff53a;
-            this->m_h[4] = 0x510e527f;
-            this->m_h[5] = 0x9b05688c;
-            this->m_h[6] = 0x1f83d9ab;
-            this->m_h[7] = 0x5be0cd19;
-            this->m_len = 0;
-            this->m_tot_len = 0;
+    Sha256::Sha256(Sha256 const& obj) {
+            this->m_h[0] = obj.m_h[0];
+            this->m_h[1] = obj.m_h[1];
+            this->m_h[2] = obj.m_h[2];
+            this->m_h[3] = obj.m_h[3];
+            this->m_h[4] = obj.m_h[4];
+            this->m_h[5] = obj.m_h[5];
+            this->m_h[6] = obj.m_h[6];
+            this->m_h[7] = obj.m_h[7];
+            this->m_len = obj.m_len;
+            this->m_tot_len = obj.m_tot_len;
         }
 
     void Sha256::transform(const unsigned char *message, unsigned int block_nb) {
-        if (this->flag) {
-            uint32 w[64];
-            uint32 wv[8];
-            uint32 t1, t2;
+		uint32 w[64];
+		uint32 wv[8];
+		uint32 t1, t2;
 
-            for (int i = 0; i < (int) block_nb; i++) {
-                const unsigned char * sub_block = message + (i << 6);
+		for (int i = 0; i < (int) block_nb; i++) {
+			const unsigned char * sub_block = message + (i << 6);
 
-                for (int j = 0; j < 16; j++) {
-                    SHA2_PACK32(&sub_block[j << 2], &w[j]);
-                }
+			for (int j = 0; j < 16; j++) {
+				SHA2_PACK32(&sub_block[j << 2], &w[j]);
+			}
 
-                for (int j = 16; j < 64; j++) {
-                    w[j] =  SHA256_F4(w[j -  2]) + w[j -  7] + SHA256_F3(w[j - 15]) + w[j - 16];
-                }
+			for (int j = 16; j < 64; j++) {
+				w[j] =  SHA256_F4(w[j -  2]) + w[j -  7] + SHA256_F3(w[j - 15]) + w[j - 16];
+			}
 
-                for (int j = 0; j < 8; j++) {
-                    wv[j] = this->m_h[j];
-                }
+			for (int j = 0; j < 8; j++) {
+				wv[j] = this->m_h[j];
+			}
 
-                for (int j = 0; j < 64; j++) {
-                    t1 = wv[7] + SHA256_F2(wv[4]) + SHA2_CH(wv[4], wv[5], wv[6]) + sha256_k[j] + w[j];
-                    t2 = SHA256_F1(wv[0]) + SHA2_MAJ(wv[0], wv[1], wv[2]);
-                    wv[7] = wv[6];
-                    wv[6] = wv[5];
-                    wv[5] = wv[4];
-                    wv[4] = wv[3] + t1;
-                    wv[3] = wv[2];
-                    wv[2] = wv[1];
-                    wv[1] = wv[0];
-                    wv[0] = t1 + t2;
-                }
+			for (int j = 0; j < 64; j++) {
+				t1 = wv[7] + SHA256_F2(wv[4]) + SHA2_CH(wv[4], wv[5], wv[6]) + sha256_k[j] + w[j];
+				t2 = SHA256_F1(wv[0]) + SHA2_MAJ(wv[0], wv[1], wv[2]);
+				wv[7] = wv[6];
+				wv[6] = wv[5];
+				wv[5] = wv[4];
+				wv[4] = wv[3] + t1;
+				wv[3] = wv[2];
+				wv[2] = wv[1];
+				wv[1] = wv[0];
+				wv[0] = t1 + t2;
+			}
 
-                for (int j = 0; j < 8; j++) {
-                    this->m_h[j] += wv[j];
-                }
-            }
-        }
+			for (int j = 0; j < 8; j++) {
+				this->m_h[j] += wv[j];
+			}
+		}
     }
 
     void Sha256::update(const unsigned char *message, unsigned int len) {
-        if (this->flag) {
-            unsigned int tmp_len = SHA224_256_BLOCK_SIZE - this->m_len;
-            unsigned int rem_len = len < tmp_len ? len : tmp_len;
 
-            // Copy N bytes for SRC to DEST
-            memcpy(&this->m_block[this->m_len], message, rem_len);
+		unsigned int tmp_len = SHA224_256_BLOCK_SIZE - this->m_len;
+		unsigned int rem_len = len < tmp_len ? len : tmp_len;
 
-            if (this->m_len + len < SHA224_256_BLOCK_SIZE) {
-                this->m_len += len;
-                return;
-            }
+		// Copy N bytes for SRC to DEST
+		memcpy(&this->m_block[this->m_len], message, rem_len);
 
-            unsigned int new_len = len - rem_len;
-            unsigned int block_nb = new_len / SHA224_256_BLOCK_SIZE;
-            const unsigned char *shifted_message = message + rem_len;
+		if (this->m_len + len < SHA224_256_BLOCK_SIZE) {
+			this->m_len += len;
+			return;
+		}
 
-            this->transform(this->m_block, 1);
-            this->transform(shifted_message, block_nb);
+		unsigned int new_len = len - rem_len;
+		unsigned int block_nb = new_len / SHA224_256_BLOCK_SIZE;
+		const unsigned char *shifted_message = message + rem_len;
 
-            rem_len = new_len % SHA224_256_BLOCK_SIZE;
+		this->transform(this->m_block, 1);
+		this->transform(shifted_message, block_nb);
 
-            // Copy N bytes for SRC to DEST
-            memcpy(this->m_block, &shifted_message[block_nb << 6], rem_len);
+		rem_len = new_len % SHA224_256_BLOCK_SIZE;
 
-            this->m_len = rem_len;
-            this->m_tot_len += (block_nb + 1) << 6;
-        }
+		// Copy N bytes for SRC to DEST
+		memcpy(this->m_block, &shifted_message[block_nb << 6], rem_len);
+
+		this->m_len = rem_len;
+		this->m_tot_len += (block_nb + 1) << 6;
     }
 
     void Sha256::final(unsigned char *digest) {
-        if (this->flag) {
-            unsigned int block_nb = (1 + ((SHA224_256_BLOCK_SIZE - 9) < (this->m_len % SHA224_256_BLOCK_SIZE)));
-            unsigned int len_b = (this->m_tot_len + this->m_len) << 3;
-            unsigned int pm_len = block_nb << 6;
 
-            // Set N bytes of S to C
-            memset(this->m_block + this->m_len, 0, pm_len - this->m_len);
+		unsigned int block_nb = (1 + ((SHA224_256_BLOCK_SIZE - 9) < (this->m_len % SHA224_256_BLOCK_SIZE)));
+		unsigned int len_b = (this->m_tot_len + this->m_len) << 3;
+		unsigned int pm_len = block_nb << 6;
 
-            this->m_block[this->m_len] = 0x80;
-            SHA2_UNPACK32(len_b, this->m_block + pm_len - 4);
+		// Set N bytes of S to C
+		memset(this->m_block + this->m_len, 0, pm_len - this->m_len);
 
-            this->transform(this->m_block, block_nb);
+		this->m_block[this->m_len] = 0x80;
+		SHA2_UNPACK32(len_b, this->m_block + pm_len - 4);
 
-            for (int i = 0; i < 8; i++) {
-                SHA2_UNPACK32(this->m_h[i], &digest[i << 2]);
-            }
-        }
-    }
+		this->transform(this->m_block, block_nb);
 
-    void Sha256::stop() {
-        this->flag = false;
+		for (int i = 0; i < 8; i++) {
+			SHA2_UNPACK32(this->m_h[i], &digest[i << 2]);
+		}
     }
     
     Sha256::~Sha256() {}

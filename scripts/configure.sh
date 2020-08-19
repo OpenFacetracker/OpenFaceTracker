@@ -5,9 +5,9 @@
 #   Software Engineer :     Hethsron Jedaël BOUEYA
 #   Project Manager :       Richard REY
 #   Date :                  3rd June 2019
-#   Version :               5.0.0
+#   Version :               6.0.0
 #   Copyright (C) :         Laboratoire CNS/(C+V)°
-#                           ESIEA - Laval 2019
+#                           ESIEA - Laval 2020
 #
 #   This text plain is developed in the hope that it will be useful
 #   but WITHOUT ANY WARRANTY ; without even the implied warranty of
@@ -202,6 +202,7 @@ declare -a PKGS_CENTOS=(
                 "v4l-utils"
                 "v4l-utils-devel-tools"
                 "yasm"
+				"youtube-dl"
 )
 
 declare -a PKGS_DEBIAN=(
@@ -273,6 +274,7 @@ declare -a PKGS_DEBIAN=(
                 "v4l-utils"
                 "x264"
                 "yasm"
+				"youtube-dl"
                 "zlib1g-dev"
 )
 
@@ -345,6 +347,7 @@ declare -a PKGS_KALI=(
                 "v4l-utils"
                 "x264"
                 "yasm"
+				"youtube-dl"
                 "zlib1g-dev"
 )
 
@@ -354,8 +357,8 @@ declare -a PKGS_MAGEIA=(
 
 #   Display Welcome message
 ${ECHO} "OpenFaceTracker For Developers"
-${ECHO} "GNU GPL Version 5.0.0"
-${ECHO} "© Copyright - ESIEA Campus Laval 2019"
+${ECHO} "GNU GPL Version 6.0.0"
+${ECHO} "© Copyright - ESIEA Campus Laval 2020"
 ${ECHO} "CNS (Confiance Numérique et Sécurité)\n"
 ${ECHO} "Starting the configuration of your GNU/Linux Operating System"
 ${ECHO} ""

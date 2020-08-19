@@ -59,8 +59,8 @@
     #include <oft/facialdetection.hpp>
     #include <oft/facialrecognition.hpp>
     #include <oft/handlerdraw.hpp>
+    #include <oft/handlerjson.hpp>
     #include <opencv2/opencv.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
     #include <tuple>
 #elif defined _WIN32
@@ -69,85 +69,66 @@
     #include <oft/facialdetection.hpp>
     #include <oft/facialrecognition.hpp>
     #include <oft/handlerdraw.hpp>
+    #include <oft/handlerjson.hpp>
     #include <opencv2/opencv.hpp>
-    #include <oft/toolsbox.hpp>
+	#include <opencv2/videoio/registry.hpp>
 	#include <oft/defs.hpp>
     #include <tuple>
 #endif // ! __linux__ or _WIN32
 
 namespace oft {
+
+	static void onMouse( int event, int x, int y, int, void* data);
+
     /**
      *  \class      LabCollector
      *  \brief      Class of default methods of analysis
      */
-    class LabCollector
+    class OFT_EXPORT LabCollector
     {
     private:
-        std::vector<std::string> notice;                /*!< Notice sheet analysis */
+
+		/**
+         *  \fn     LabCollector
+         *  \brief  Class default constructor. It is not intended to be instantiated.
+         */
+        LabCollector();
+
+		static std::string configFilePath;		/*<! Set configFilePath to a JSON config file to set Backend, FacialDetection, FacialRecognition and HandlerLog files */
 
     public:
-        /**
-         *  \fn     LabCollector
-         *  \brief  Class default constructor
-         */
-        OFT_EXPORT LabCollector();
+
+		static void setConfigPath(const std::string& filepath);
 
         /**
          *  \fn     VideoAnalysis
          *  \brief  Function that allows users to perform analysis from a real time streaming that could be a video file, an image sequence or a camera
-         *
-         *  \param[in]      streaming           Real time streaming
-         *  \return         void
+         *	
+		 *
+         *  \param[in]      streaming           Streaming media. Can be a camera device, an AVI/MPEG-4/MATROSKA file or a rechable streaming URL with RTSP or HTTP scheme
+         *  \param[in]      label           	Optionnal parameter. When !label.empty(), every detected face will be projected and averaged to be added to the database under 'label'
+         *  \param[in]      confirmation        Optionnal parameter. If true, every detected face will appear in a window waiting for user confirmation ('y' key press) before adding to database. Use carefully when false
          */
-        OFT_EXPORT void VideoAnalysis(char streaming[], std::string label = "", bool confirmation = true);
+        static void VideoAnalysis(char streaming[], std::string label = "", bool confirmation = false);
 
         /**
          *  \fn     ImageAnalysis
          *  \brief  Function that allows users to perform analysis from an image file
          *
-         *  \param[in]      file                Image file
-         *  \param[in]      label               If not empty, the detected person sample will be added to database
-         *  \return         void
+         *  \param[in]      file           		Image media. Can be a JPEG or JPG file or a rechable URL with RTSP or HTTP scheme
+         *  \param[in]      label           	Optionnal parameter. When !label.empty(), every detected face will be projected and averaged to be added to the database under 'label'
+         *  \param[in]      confirmation        Optionnal parameter. If true, every detected face will appear in a window waiting for user confirmation ('y' key press) before adding to database. Use carefully when false
          */
-        OFT_EXPORT void ImageAnalysis(char file[], std::string label = "", bool confirmation = true);
+        static void ImageAnalysis(char file[], std::string label = "", bool confirmation = false);
 
         /**
          *  \fn     askConfirmation
-         *  \brief  Function that displays an image in a frame called "Confirm" and awaits for a key press 
+         *  \brief  Function that awaits for a key press to continue
          *
-         *  \param[in]      face                cv::Mat of the face to confirm
-         *  \return         bool                true if user has pressed 'y' key, false otherwise
+         *  \return         true if user has pressed 'y' key
+		 * 	\return         false if user has pressed any other key
          */
-        OFT_EXPORT bool askConfirmation(cv::Mat& face);
-
-        /**
-         *  \fn     benoticed
-         *  \brief  Function that allows users to be notice about the informations getting from analysis
-         *
-         *  \return         identity
-         *  \return         confidence
-         *  \return         Gender
-         *  \return         Age
-         *  \return         People Count
-         */
-        OFT_EXPORT std::vector<std::string> benoticed();
-
-        /**
-         *  \fn     ~LabCollector
-         *  \brief  Class destructor
-         */
-        OFT_EXPORT ~LabCollector();
-
-    private:
-
-        /**
-         *  \fn     add_Person
-         *  \brief  Function that adds a new entry to database
-         *
-         *  \param[in]      face           Face of the new person to add
-         *  \return         void
-         */
-        void add_Person(cv::Mat& face, std::string label);
+        static bool askConfirmation();
     };
 
 }   // END namespace oft

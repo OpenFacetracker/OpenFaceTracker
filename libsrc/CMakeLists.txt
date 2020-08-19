@@ -32,7 +32,7 @@ if (UNIX)
     endif (CMAKE_COMPILER_IS_GNUCC)
 elseif (WIN32)
 	if (MSVC14)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /wd4251")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
         set(CMAKE_CXX_STANDARD 11)
@@ -76,7 +76,7 @@ if (UNIX)
 	target_include_directories(${LIB_NAME} PUBLIC ${X11_INCLUDE_DIR})
 
 	# Add additional libraries
-	find_package(Boost COMPONENTS filesystem system REQUIRED thread timer chrono)
+	find_package(Boost REQUIRED COMPONENTS filesystem)
 	find_package(X11)
 	find_package(Threads)
 elseif (WIN32)
@@ -87,11 +87,13 @@ elseif (WIN32)
 	# Check OPENCV_LIBRARIES and OPENCV_INCLUDE_DIRS
 	find_package(opencv REQUIRED)
 
-	# Check JSON-C_LIBRARIES
-	find_package(json-c CONFIG REQUIRED)
+	# Check nlohmann-json package
+	find_package(nlohmann_json CONFIG REQUIRED)
 
 	# Include directories of headers
 	target_include_directories(${LIB_NAME} PUBLIC ${INCLUDEDIR})
+
+	find_package(Boost CONFIG)
 
 	#include CPPDB library
 	find_path(CPPDB_INCLUDE_DIR cppdb/backend.h)
@@ -116,11 +118,11 @@ if (CURL_FOUND)
     # Link a target to given libraries
     if (UNIX)
         if (CMAKE_COMPILER_IS_GNUCC)
-            #target_link_libraries(${LIB_NAME} PUBLIC ${JSON-C_LIBRARIES} ${OPENCV_LIBRARIES} ${CURL_LIBRARIES} ${X11_LIBRARIES} cppdb)
+            #target_link_libraries(${LIB_NAME} PUBLIC nlohmann-json ${OPENCV_LIBRARIES} ${CURL_LIBRARIES} ${X11_LIBRARIES} cppdb ${Boost_LIBRARIES})
         endif (CMAKE_COMPILER_IS_GNUCC)
     elseif (WIN32)
-        if (MSVC14)
-            target_link_libraries(${LIB_NAME} PUBLIC json-c ${OpenCV_LIBS} libcurl cppdb)
+		if (MSVC14)
+            target_link_libraries(${LIB_NAME} PUBLIC ${OpenCV_LIBS} libcurl cppdb boost_filesystem-vc140-mt)
         endif (MSVC14)
     endif (UNIX)
 else (CURL_FOUND)
@@ -132,7 +134,7 @@ endif (CURL_FOUND)
 #-----------------------------------------------------------------------------------
 
 # Check doxygen
-find_package(Doxygen)
+#find_package(Doxygen)
 if (NOT DOXYGEN_FOUND)
     message("Doxygen not found, I will not generate/install the documentation")
 elseif (DOXYGEN_FOUND)

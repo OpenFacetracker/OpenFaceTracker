@@ -2,17 +2,13 @@
 
 namespace oft {
     
-    HandlerLog::HandlerLog(bool _flag) 
-        : ToolsBox(_flag) {}
+#ifdef oft_EXPORTS
+	std::string HandlerLog::log_path = Explorer::fullPath("./oft.log");
+#endif
 
-    HandlerLog::HandlerLog(HandlerLog const& obj)
-        : ToolsBox(obj) {}
+	HandlerLog::HandlerLog() {}
 
-    void HandlerLog::stop() {
-        this->flag = false;
-    }
-
-    void HandlerLog::create(const std::string& event) {
+	void HandlerLog::log(const std::string& event) {
         // Get current time
         std::time_t system_clock = time(0);
 
@@ -31,31 +27,11 @@ namespace oft {
         // Format locale time zone in a buffer
         strftime(buffer, sizeof(buffer), "%Y-%m-%d %X", &locale_time_zone);
 
-        // Define explorer
-        Explorer e;
-
-        // Define log file
-        #ifdef __linux__
-            #ifdef API
-                const char log_file[] = "/../../../var/log/oft.log";
-            #else
-                const char log_file[] = "/../var/log/oft.log";
-            #endif // ! API
-        #elif defined _WIN32
-            #ifdef API
-                const char log_file[] = "\\..\\..\\..\\var\\log\\oft.log";
-            #else
-                const char log_file[] = "\\..\\var\\log\\oft.log";
-            #endif // ! API
-        #endif // ! __linux__ or _WIN32
-
-        std::string log = e.gwd() + std::string(log_file);
-
         // Define event log
         std::string event_log = std::string(buffer) + " OPENFACETRACKER : " + event;
 
         // Write a log
-        e.vi(log, event_log);
+        Explorer::vi(HandlerLog::log_path, event_log);
 
         #ifdef __linux__
             // Set the logmask for calling process
@@ -69,6 +45,9 @@ namespace oft {
             syslog(LOG_INFO, event.c_str());
         #endif // ! __linux__
     }
-    
-    HandlerLog::~HandlerLog() {}
+
+	void HandlerLog::setLogPath(const std::string& path) {
+		HandlerLog::log_path = Explorer::fullPath(path);
+		Explorer::create_directories(HandlerLog::log_path);
+	}
 }

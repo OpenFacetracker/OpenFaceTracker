@@ -57,24 +57,20 @@
     #include <iostream>
     #include <oft/backend.hpp>
     #include <oft/explorer.hpp>
-    #include <oft/globalanalysis.hpp>
     #include <oft/handlerdraw.hpp>
     #include <oft/handlerlog.hpp>
     #include <opencv2/face.hpp>
     #include <opencv2/opencv.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
     #include <tuple>
 #elif defined _WIN32
     #include <iostream>
     #include <oft/backend.hpp>
     #include <oft/explorer.hpp>
-    #include <oft/globalanalysis.hpp>
     #include <oft/handlerdraw.hpp>
     #include <oft/handlerlog.hpp>
     #include <opencv2/face.hpp>
     #include <opencv2/opencv.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
     #include <tuple>
 #endif // ! __linux__ or _WIN32
@@ -84,10 +80,16 @@ namespace oft {
      *  \class      FacialDetection
      *  \brief      Class of facial detection
      */
-    class FacialDetection : public GlobalAnalysis
+    class FacialDetection
     {
     private:
         cv::CascadeClassifier haarcascade;                      /*!< Haarcascade classifier */
+
+		/**
+         *  \fn     FacialDetection
+         *  \brief  Class default constructor. It is not intended to be instantiated.
+         */
+        FacialDetection();
 
     public:
 
@@ -97,9 +99,9 @@ namespace oft {
          *  \fn     FacialDetection
          *  \brief  Class parameterized constructor
          *
-         *  \param[in]      _fuse           Fuse (must be true)
+         *  \param[in]      facedetect		Path to a CascadeClassifer file to detect faces
          */
-        OFT_EXPORT FacialDetection(bool _fuse);
+        OFT_EXPORT FacialDetection(const std::string& facedetect);
 
         /**
          *  \fn     FacialDetection
@@ -107,25 +109,16 @@ namespace oft {
          *
          *  \param[in]      obj             FacialDetection object
          */
-        OFT_EXPORT FacialDetection(FacialDetection const& obj);
+        //OFT_EXPORT FacialDetection(FacialDetection const& obj);
 
         /**
          *  \fn     perform
          *  \brief  Detects and returns rectangles on faces in the image
          *
-         *  \param[in]      _frame             Matrix of the image
-         *
-         *  \return Reference to faces rectangles
+         *  \param[in]      frame			Matrix of the image
+         *  \param[out]     positions		List of positions of detected faces on _frame
          */
-        OFT_EXPORT std::vector<cv::Rect> perform(cv::Mat _frame);
-
-        /**
-         *  \fn     stop
-         *  \brief  Function that allows users to stop facial detection
-         *
-         *  \return         void
-         */
-        OFT_EXPORT void stop();
+        OFT_EXPORT void perform(cv::Mat frame, std::vector<cv::Rect>& positions, bool isEqHist = false);
 
         /**
          *  \fn     ~FacialDetection

@@ -58,7 +58,6 @@
     #include <ctime>
     #include <oft/explorer.hpp>
     #include <oft/handlerlog.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
     #include <iostream>
 #elif defined _WIN32
@@ -66,7 +65,6 @@
     #include <ctime>
     #include <oft/explorer.hpp>
     #include <oft/handlerlog.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
     #include <iostream>
 #endif // ! __linux__ or _WIN32
@@ -76,100 +74,101 @@ namespace oft {
      *  \class      Backend
      *  \brief      Class of database management system
      */
-    class Backend : public ToolsBox
+    class OFT_EXPORT Backend
     {
     private:
-        std::string connection;                         /*!< Connection string */
-        std::string database;                           /*!< The database file */
-        cppdb::session session;                         /*!< The database session */
+        static std::string database;                        /*!< The database filepath */
+        static std::string connection;              		/*!< Connection string */
 
-        cppdb::result getAllRes;                        /*!< GetAll Result. Initialized when getAll() is called and updated in getNext() */
+        static cppdb::result getAllRes;                     /*!< GetAll Result. Initialized when getAll() is called and updated in getNext() */
+
+		/**
+         *  \fn     Backend
+         *  \brief  Class default constructor. It is not intended to be instantiated.
+         */
+        Backend();
 
     public:
         /**
-         *  \fn     Backend
-         *  \brief  Class parameterized constructor
+         *  \fn     setDBPath
+         *  \brief  Setter for database path
          * 
-         *  \param[in]      _flag       Power switch (must be true)
+         *  \param[in]      db_path			Path to database
          */
-        OFT_EXPORT Backend(bool _flag);
-
-        /**
-         *  \fn     Backend
-         *  \brief  Class copy constructor
-         * 
-         *  \param[in]      obj         Backend object
-         */
-        OFT_EXPORT Backend(Backend const& obj);
+        static void setDBPath(const std::string& db_path);
 
         /**
          *  \fn     insert
          *  \brief  Function that allows users to insert image file in the database
          * 
-         *  \param[in]      distn       The distinguished name of image file that identifies a physical person
-         *  \return         long long   Row ID
+         *  \param[in]      label		Label associated to person
+         *  \param[in]      is			Float vector stored as BLOB
+         *  \param[in]      nb_Samples  Total number of samples used to average data
+		 * 
+         *  \return         Row ID    	If entry is correctly inserted
+         *  \return         -1   		If not
          */
-        OFT_EXPORT long long insert(const std::string& label, std::istream& is, int nb_Samples = 1);
+        static long long insert(const std::string& label, std::istream& is, int nb_Samples = 1);
 
         /**
          *  \fn     update
          *  \brief  Function that allows users to update a Person data in the database
          *
-         *  \param[in]      distn       The distinguished name of image file that identifies a physical person
-         *  \return         bool        Success
+         *  \param[in]      label		Label associated to person
+         *  \param[in]      is			Float vector stored as BLOB
+         *  \param[in]      nb_Samples  Total number of samples used to average data
+		 * 
+         *  \return         true    	If entry is correctly updated
+         *  \return         false   	If not
          */
-        OFT_EXPORT bool update(const std::string& label, std::istream& is, int nb_Samples);
+        static bool update(const std::string& label, std::istream& is, int nb_Samples);
 
         /**
          *  \fn     remove
          *  \brief  Function that allows users to delete a Person row in the database
          *
          *  \param[in]      label       Label associated to the Person to delete
-         *  \return         bool        Success
+		 * 
+         *  \return         true    	If entry is correctly removed
+         *  \return         false   	If not
          */
-        OFT_EXPORT bool remove(const std::string& label);
+        static bool remove(const std::string& label);
 
         /**
          *  \fn     size
          *  \brief  Function that allows users to get the database size or the total number of entries in the databse
          * 
-         *  \return         The database size
+         *  \return         size_t		Number of entry in table 'Person'
          */
-        OFT_EXPORT std::size_t size();
+        static std::size_t size();
 
         /**
          *  \fn     getAll
          *  \brief  Function that initializes the getAll() statement
          *
-         *  \return         Success
+         *  \return         true    	If statement is correctly initialized
+         *  \return         false   	If not
          */
-        OFT_EXPORT bool getAll();
+        static bool getAll();
 
         /**
          *  \fn     getNext
          *  \brief  Function that iterates over each row of getAll() result
+		 * 
+         *  \param[in]      result      Row data as Tuple. <ID, label, nbSamples, data>
          *
-         *  \return         Success
+         *  \return         true    	If a row has been retrieved
+         *  \return         false   	If there is no more entry in result
          */
-        OFT_EXPORT bool getNext(std::tuple<long long, std::string, int, std::stringstream>& result);
+        static bool getNext(std::tuple<long long, std::string, int, std::stringstream>& result);
 
         /**
          *  \fn     start
-         *  \brief  Function that allows users to start using the database management system with its default database file
+         *  \brief  Function that clears and initializes database
+		 * 
+		 * 	Will generate a .db if it does not exist
          */
-        OFT_EXPORT void start();
-
-        /**
-         *  \fn     stop
-         *  \brief  Function that allows users to stop using the database management system
-         */
-        OFT_EXPORT void stop();
-        
-        /**
-         *  \fn     ~Backend
-         *  \brief  Class destructor
-         */
-        OFT_EXPORT ~Backend();
+        static void start();
     };
 
 }   // END namespace oft

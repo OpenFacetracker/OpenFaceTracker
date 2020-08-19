@@ -60,12 +60,10 @@
 	#include <string>
 	#include <oft/backend.hpp>
 	#include <oft/explorer.hpp>
-	#include <oft/globalanalysis.hpp>
 	#include <oft/handlerdraw.hpp>
 	#include <oft/handlerlog.hpp>
 	#include <opencv2/face.hpp>
 	#include <opencv2/opencv.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
 	#include <tuple>
 #elif defined _WIN32
@@ -75,13 +73,11 @@
 	#include <string>
 	#include <oft/backend.hpp>
 	#include <oft/explorer.hpp>
-	#include <oft/globalanalysis.hpp>
 	#include <oft/facialdetection.hpp>
 	#include <oft/handlerdraw.hpp>
 	#include <oft/handlerlog.hpp>
 	#include <opencv2/face.hpp>
 	#include <opencv2/opencv.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
 	#include <tuple>
 #endif // ! __linux__ or _WIN32
@@ -91,26 +87,38 @@ namespace oft {
      *  \class      FacialRecognition
      *  \brief      Class of facial recognition
      */
-    class FacialRecognition : public GlobalAnalysis
-    {
+    class FacialRecognition {
+
     private:
 
         static constexpr double RETAINED_VARIANCE_GENERIC_PCA = 0.95;       /*!< Joliffe criterion. We keep RETAINED_VARIANCE_GENERIC_PCA of the variance of generic PCA to limit the number of components */
-        
         cv::PCA generic_pca;                                                /*!< PCA based on a large sample of faces to generalize */
+        double threshold = 4000.0;
 
+		cv::Ptr<cv::face::Facemark> facemarker;								/*!< Face landmarks detector */
+		std::vector<cv::Point2f> mean_landmarks;							/*!< PCA mean landmarks */
+		
         std::tuple<std::vector<long long>, std::vector<std::string>, std::vector<cv::Mat>, std::vector<int>> gallery_data;    /*!< Tuples vector of the projection of every image of the database and its corresponding label, id and nb_samples */
 
-        double threshold = 5000.0;
+		//* UNUSED
+		// static const cv::Point2f boundaries[8];								/*!< Boundaries Points. Added to Landmarks to form all Delaunay Triangles */
+		// static const int delaunayTriangulation[142][3];						/*!< Delaunay Triangulation of target facial landmarks */
+	
+		/**
+         *  \fn     FacialRecognition
+         *  \brief  Class default constructor. It is not intended to be instantiated.
+         */
+        FacialRecognition();
 
     public:
         /**
          *  \fn     FacialRecognition
          *  \brief  Class parameterized constructor
          *
-         *  \param[in]      _fuse           Fuse (must be true)
+         *  \param[in]      pca_file       	Path to PCA file
+         *  \param[in]      facemark		Path to a facemark model file
          */
-        OFT_EXPORT FacialRecognition(bool _fuse);
+        OFT_EXPORT FacialRecognition(const std::string& pca_file, const std::string& facemark);
 
         /**
          *  \fn     FacialRecognition
@@ -124,39 +132,55 @@ namespace oft {
          *  \fn     perform
          *  \brief  Recognize a face from a Matrix using a database
          *
-         *  \param[in]      _face           Matrix of a face to identify
+         *  \param[in]     	face           	Matrix of a face to identify
          *
-         *  \return         std::tuple      Label associated to most similar face and confidence
+         *  \return        	Predicted label associated to most similar face and confidence
+		 * 	\return			<"UNKOWN", -1.0> 	if the nearest person was at a distance > this->threshold
          */
-        OFT_EXPORT std::tuple<std::string, double> perform(cv::Mat _face);
+        OFT_EXPORT std::vector<std::tuple<std::string, double>> perform(cv::Mat frame, const std::vector<cv::Rect>& facePositions, bool isEqHist = false, cv::Mat projections = cv::Mat());
+
+		/**
+         *  \fn     alignFace
+         *  \brief  Align a given face to generic_pca.mean
+         *
+         *  \param[in]     	face           	Frame containing the face
+         *  \param[out]     dst       		Aligned face (dSize=FacialDetection::face_size)
+         *  \param[in]     	landmarks       Landmarks of the face to align
+         */
+		OFT_EXPORT void alignFace(cv::Mat frame, cv::Mat dst, std::vector<cv::Point2f> landmarks);
+
+		/**
+         *  \fn     alignFace
+         *  \brief  Align a given face to generic_pca.mean
+         *
+         *  \param[in]     	face           	Frame containing the face
+         *  \param[out]     dst       		Aligned face (dSize=FacialDetection::face_size)
+         *  \param[in]     	face_position   Position of the face in the frame
+         */
+		OFT_EXPORT void alignFace(cv::Mat frame, cv::Mat dst, cv::Rect face_position);
 
         /**
-         *  \fn     project
+         *  \fn     add_Person
          *  \brief  Recognize a face from a Matrix using a database
          *
-         *  \param[in]      _face           Matrix of a face to identify
-         *
-         *  \return         cv::Mat         Projection of _face onto generic_pca subspace 
+         *  \param[in]      projection      Projection of the face onto generic_pca subspace
+         *  \param[in]      label         	Label associated to the person
+         *  \param[in]      nb_Samples    	Number of samples used to average face
          */
-        OFT_EXPORT void add_Person(cv::Mat& face, std::string label, int nb_Samples = 1);
+        OFT_EXPORT void add_Person(cv::Mat projection, std::string label, int nb_Samples = 1);
 
         /**
          *  \fn     project
          *  \brief  Project given face onto generic_pca subspace
          *
-         *  \param[in]      face           Matrix of a face to project
+         *  \param[in]      frame           Frame containing a face
+         *  \param[in]      position        Rectangle tracking the face
+         *  \param[in]      squared         Optionnal buffer (dsize=FacialDetection::face_size)
+         *  \param[out]     dst           	Optionnal dst buffer (dsize=generic_pca.mean.size)
          *
-         *  \return         cv::Mat         Projection of _face onto generic_pca subspace
+         *  \return         Projection of face onto generic_pca subspace
          */
-        OFT_EXPORT cv::Mat project(cv::Mat& face, cv::Mat squared = cv::Mat(), cv::Mat dst = cv::Mat());
-
-        /**
-         *  \fn     stop
-         *  \brief  Function that allows users to stop facial detection
-         *
-         *  \return         void
-         */
-        OFT_EXPORT void stop();
+        OFT_EXPORT cv::Mat project(cv::Mat frame, cv::Rect position, cv::Mat squared = cv::Mat(), cv::Mat dst = cv::Mat(), bool isEqHist = false);
 
         /**
          *  \fn     ~FacialRecognition
@@ -172,16 +196,15 @@ namespace oft {
          *  \param[in]      img                 cv::Mat of an image to resize as square
          *  \param[in]      target_width        Width and Height of dst
          *
-         *  \return         cv::Mat             A square image of size [target_width x target_width] containing img with its aspect ratio respected and zero padding
+         *  \return         A square image of size [target_width x target_width] containing img with its aspect ratio respected and zero padding
          */
-        OFT_EXPORT static cv::Mat getSquareImage(const cv::Mat& img, int target_width = 60);
+        static cv::Mat getSquareImage(const cv::Mat& img, int target_width = FacialDetection::face_size.width);
 
     private:
 
         /**
          *  \fn     updateGallery
          *  \brief  Get all database and keep in gallery_data
-         *
          */
         void updateGallery();
     };

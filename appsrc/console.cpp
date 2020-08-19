@@ -1,4 +1,4 @@
-#include <console.hpp>
+#include "console.hpp"
 
 namespace oft {
 
@@ -81,7 +81,7 @@ namespace oft {
         std::cout << "\t" << "OpenFaceTracker is a facial recognition system, a technology capable of identifying or verifying a person from a digital image or a video frame from a video source." << std::endl;
         std::cout << "\t" << "Mandatory arguments to long options are mandatory for short options too." << std::endl;
         std::cout << "\t" << "-h, --help" << "\t\t" << "display this help and exit" << std::endl;
-        std::cout << "\t" << "-v, --version" << "\t\t" << "display the version of the application and exit" << std::endl;
+        std::cout << "\t" << "-V, --version" << "\t\t" << "display the version of the application and exit" << std::endl;
         std::cout << "\t" << "-d, --device" << "\t\t" << "identify a person from a video frame (from <SOURCE> that could be CAM0, CAM1 or CAM2)" << std::endl;
         std::cout << "\t" << "-i, --image" << "\t\t" << "identify a person from a digital image (from <SOURCE> that could be a JPEG or JPG file)" << std::endl;
         std::cout << "\t" << "-p, --player" << "\t\t" << "identify a person from a video (from <SOURCE> that could be a AVI, MPEG-4 or MATROSKA file)" << std::endl;
@@ -111,6 +111,8 @@ namespace oft {
         std::string label("");
 		bool confirmation = true;
 
+		HandlerJson hjson("../data/config.json");
+
         // Building argument vector with argument count
         for (int i = 0; i < this->argco; ++i) {
             parameters.push_back(this->argve[i]);
@@ -131,8 +133,8 @@ namespace oft {
             return;
         }
 
-        // Search for -v and --version command-line options
-        if ((it = std::find(parameters.begin(), parameters.end(), "-v")) != parameters.end() ||
+        // Search for -V and --version command-line options
+        if ((it = std::find(parameters.begin(), parameters.end(), "-V")) != parameters.end() ||
             (it = std::find(parameters.begin(), parameters.end(), "--version")) != parameters.end()) {
             displayVersion();
             parameters.erase(it);
@@ -148,8 +150,12 @@ namespace oft {
 
                 parameters.erase(it + 1);
 
-                Backend b(true);
-                // TODO Remove <LABEL|ID> from db
+				Backend::setDBPath(hjson["dbpath"]);
+
+				if(Backend::remove(label))
+					std::cout << label << " succesfully removed from database" << std::endl;
+				else
+					std::cout << "Failure when trying to remove " << label << " from database" << std::endl;
             }
             else {
                 std::cerr << "Invalid label" << std::endl;
@@ -170,7 +176,7 @@ namespace oft {
             }
             else {
                 std::cerr << "Invalid label" << std::endl;
-                std::cerr << "Use [ ... --add <LABEL>]" << std::endl;
+                std::cerr << "Use [--add <LABEL>]" << std::endl;
             }
 
             parameters.erase(it);
@@ -188,11 +194,8 @@ namespace oft {
         // If there are additional parameters
         if (parameters.size() > 1) {
 
-            // Define an Explorer object
-            Explorer e = Explorer();
-
-            // Define LabCollector object
-            LabCollector lc = LabCollector();
+			// Set config JSON file to LabCollector
+			LabCollector::setConfigPath("../data/config.json");
 
             // Search for -d and --device command-line options
             if ((it = std::find(parameters.begin(), parameters.end(), "-d")) != parameters.end() ||
@@ -208,7 +211,13 @@ namespace oft {
                     // Verifying the source
                     if (device == "CAM0" || device == "CAM1" || device == "CAM2") {
                         // Launch Video Analysis from the real time streaming
-                        lc.VideoAnalysis((char*)device.c_str(), label, confirmation);
+						try {
+							LabCollector::VideoAnalysis((char*)device.c_str(), label, confirmation);
+						}
+						catch(const std::exception& e)
+						{
+							std::cerr << e.what() << '\n';
+						}
                     }
                     else {
                         std::cerr << "Invalid device" << std::endl;
@@ -236,14 +245,17 @@ namespace oft {
 
                     parameters.erase(it + 1);
 
+					// Check if <SOURCE> is an URL
+					image = Explorer::download(image, hjson["cachepath"], false);
+					
                     // Verifying the source
-                    if (e.exist(image)) {
+                    if (Explorer::exist(image)) {
                         // If file exists
-                        if (e.forensic(image)) {
+                        if (Explorer::forensic(image)) {
                             // If it is an authorized image file
 
                             // Launch Image Analysis from the file
-                            lc.ImageAnalysis((char*)image.c_str(), label, confirmation);
+                            LabCollector::ImageAnalysis((char*)image.c_str(), label, confirmation);
                         }
                         else {
                             // If it is an unauthorized image file
@@ -277,14 +289,17 @@ namespace oft {
 
                     parameters.erase(it + 1);
 
+					// Check if <SOURCE> is an URL
+					video = Explorer::download(video, hjson["cachepath"], false);
+
                     // Verifying the source
-                    if (e.exist(video)) {
+                    if (Explorer::exist(video)) {
                         // If file exists
-                        if (e.forensic(video)) {
+                        if (Explorer::forensic(video)) {
                             // If it is an authorized video file
 
                             // Launch Video Analysis from the real time streaming
-                            lc.VideoAnalysis((char*)video.c_str(), label, confirmation);
+                            LabCollector::VideoAnalysis((char*)video.c_str(), label, confirmation);
                         }
                         else {
                             // If it is an unauthirized image file
@@ -319,11 +334,11 @@ namespace oft {
                     parameters.erase(it + 1);
 
                     // Verifying the source
-                    if (e.checkrtsp(url)) {
+                    if (Explorer::checkrtsp(url)) {
                         // If the streaming server is reachable
 
                         // Launch Video Analysis from the real time streaming
-                        lc.VideoAnalysis((char*)url.c_str(), label, confirmation);
+                        LabCollector::VideoAnalysis((char*)url.c_str(), label, confirmation);
                     }
                     else {
                         // If the streaming server is unreachable

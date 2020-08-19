@@ -2,15 +2,21 @@
 
 namespace oft {
     
-    HandlerJson::HandlerJson(bool _flag) 
-        : ToolsBox(_flag) {}
+	HandlerJson::HandlerJson() {}
 
-    HandlerJson::HandlerJson(HandlerJson const& obj)
-        : ToolsBox(obj) {}
+	HandlerJson::HandlerJson(const std::string& filepath) {
 
-    void HandlerJson::stop() {
-        this->flag = false;
-    }
-    
+		if (!Explorer::exist(filepath)) {
+			HandlerLog::log("HandlerJson : given config filepath does not exist (" + filepath + ")");
+
+			std::exit(EXIT_FAILURE);
+		}
+
+		std::ifstream fs(filepath);
+		fs >> (*this);
+		fs.close();
+	}
+
     HandlerJson::~HandlerJson() {}
+
 }

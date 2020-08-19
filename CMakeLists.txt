@@ -31,7 +31,7 @@ if (UNIX)
     endif (CMAKE_COMPILER_IS_GNUCC)
 elseif (WIN32)
 	if (MSVC14)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /wd4251")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
         set(CMAKE_CXX_STANDARD 11)
@@ -53,6 +53,9 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 # Add executable
 add_executable(${PROG_NAME} ${SRCS})
+
+# Set link dir
+link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # Link executable to library
 target_link_libraries(${PROG_NAME} ${LIB_NAME})

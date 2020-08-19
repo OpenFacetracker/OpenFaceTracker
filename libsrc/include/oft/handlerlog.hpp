@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AUTHOR: Hethsron Jedaël BOUEYA
+// AUTHOR: Maxime BEASSE
 //
 //                             LICENSE AGREEMENT
-// Copyright (c) 2019, ESIEA Campus of Laval, France
+// Copyright (c) 2020, ESIEA Campus of Laval, France
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -39,26 +39,25 @@
  *
  *  \details        System :                OpenFaceTracker
  *                  Component Name :        oft
- *                  Status :                Version 5.0.0 Release 1
+ *                  Status :                Version 6.0.0 Release 1
  *                  Language :              C++
  * 
  *                  Platform Dependencies:  GNU/Linux, Windows
  * 
  *  \copyright      GPLv3+ : GNU GPL version 3 or later
  *                  Licencied Material - Property of CNS (Confiance Numérique et Sécurité)
- *                  © Copyright - ESIEA Campus Laval 2019
+ *                  © Copyright - ESIEA Campus Laval 2020
  * 
- *	\author			Hethsron Jedaël BOUEYA (boueya@et.esiea.fr)
+ *	\author			Maxime BEASSE (beasse@et.esiea.fr)
  * 
  * 	\bug			No known bug to date
- *  \date 			3rd June 2019
+ *  \date 			11th August 2020
  */
 #ifdef __linux__
     #include <ctime>
     #include <fstream>
     #include <iostream>
     #include <oft/explorer.hpp>
-    #include <oft/toolsbox.hpp>
     #include <syslog.h>
 	#include <oft/defs.hpp>
 #elif defined _WIN32
@@ -66,7 +65,6 @@
     #include <fstream>
     #include <iostream>
     #include <oft/explorer.hpp>
-    #include <oft/toolsbox.hpp>
 	#include <oft/defs.hpp>
 #endif // ! __linux__ or _WIN32
 
@@ -75,49 +73,36 @@ namespace oft {
      *  \class      HandlerLog
      *  \brief      Class that help to manage the log files
      */
-    class HandlerLog : public ToolsBox
+    class OFT_EXPORT HandlerLog
     {
     private:
-        
+        static std::string log_path;		/*!< Path to log file. (default: "./oft.log") */
+		
+		/**
+         *  \fn     HandlerLog
+         *  \brief  Class default constructor. It is not intended to be instantiated.
+         */
+        HandlerLog();
+
     public:
-        /**
-         *  \fn     HandlerLog
-         *  \brief  Class parameterized constructor
-         * 
-         *  \param[in]      _flag       Power switch (must be true)
-         */
-        OFT_EXPORT HandlerLog(bool _flag);
 
         /**
-         *  \fn     HandlerLog
-         *  \brief  Class copy constructor
-         *  
-         *  \param[in]      obj         HandlerLog object
-         */
-        OFT_EXPORT HandlerLog(HandlerLog const& obj);
-
-        /**
-         *  \fn     create
+         *  \fn     log
          *  \brief  Function that allows users to write a Log
          * 
          *  \param[in]      event       Event log
          *  \return         void
          */
-        OFT_EXPORT void create(const std::string& event);
+        static void log(const std::string& event);
 
-        /**
-         *  \fn     stop
-         *  \brief  Function that alows users to stop using the tool
+		/**
+         *  \fn     setLogPath
+         *  \brief  Sets log file path as a static member
          * 
+         *  \param[in]      event       Event log
          *  \return         void
          */
-        OFT_EXPORT void stop();
-
-        /**
-         *  \fn     ~HandlerLog
-         *  \brief  Class destructor
-         */
-        OFT_EXPORT ~HandlerLog();
+		static void setLogPath(const std::string& path);
     };
     
 }   // ! END namespace oft

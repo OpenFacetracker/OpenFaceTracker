@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AUTHOR: Hethsron Jedaël BOUEYA
+// AUTHOR: Maxime BEASSE
 //
 //                             LICENSE AGREEMENT
-// Copyright (c) 2019, ESIEA Campus of Laval, France
+// Copyright (c) 2020, ESIEA Campus of Laval, France
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -39,29 +39,33 @@
  *
  *  \details        System :                OpenFaceTracker
  *                  Component Name :        oft
- *                  Status :                Version 5.0.0 Release 1
+ *                  Status :                Version 6.0.0 Release 1
  *                  Language :              C++
  * 
  *                  Platform Dependencies:  GNU/Linux, Windows
  * 
  *  \copyright      GPLv3+ : GNU GPL version 3 or later
  *                  Licencied Material - Property of CNS (Confiance Numérique et Sécurité)
- *                  © Copyright - ESIEA Campus Laval 2019
+ *                  © Copyright - ESIEA Campus Laval 2020
  * 
- *	\author			Hethsron Jedaël BOUEYA (boueya@et.esiea.fr)
+ *	\author			Maxime BEASSE (beasse@et.esiea.fr)
  * 
  * 	\bug			No known bug to date
- *  \date 			3rd June 2019
+ *  \date 			17th August 2020
  */
 #ifdef __linux__
     #include <iostream>
-    #include <json-c/json.h>
-    #include <oft/toolsbox.hpp>
+	#include <fstream>
+    #include <nlohmann/json.hpp>
+	#include <oft/handlerlog.hpp>
+	#include <oft/explorer.hpp>
 	#include <oft/defs.hpp>
 #elif defined _WIN32
     #include <iostream>
-    #include <json-c/json.h>
-    #include <oft/toolsbox.hpp>
+	#include <fstream>
+    #include <nlohmann/json.hpp>
+	#include <oft/handlerlog.hpp>
+	#include <oft/explorer.hpp>
 	#include <oft/defs.hpp>
 #endif // ! __linux__ or _WIN32
 
@@ -70,42 +74,32 @@ namespace oft {
      *  \class      HandlerJson
      *  \brief
      */
-    class HandlerJson : public ToolsBox
+    class HandlerJson : public nlohmann::json
     {
     private:
-        
+		/**
+         *  \fn     HandlerJson
+         *  \brief  Class default constructor. It is not intended to be instantiated.
+         */
+        HandlerJson();
+		
     public:
-        /**
-         *  \fn     HandlerJson
+
+		/**
+         *  \fn     FacialDetection
          *  \brief  Class parameterized constructor
-         * 
-         *  \param[in]      _flag       Power switch (must be true)
+         *
+         *  \param[in]      facedetect		Path to a CascadeClassifer file to detect faces
          */
-        OFT_EXPORT HandlerJson(bool _flag);
+		OFT_EXPORT HandlerJson(const std::string& file);
 
-        /**
-         *  \fn     HandlerJson
-         *  \brief  Class copy constructor
-         * 
-         *  \param[in]      obj         HandlerJson object
-         */
-        OFT_EXPORT HandlerJson(HandlerJson const& obj);
-
-        /**
-         *  \fn     stop
-         *  \brief  Function that alows users to stop using the tool
-         * 
-         *  \return         void
-         */
-        OFT_EXPORT void stop();
-
-        /**
+		/**
          *  \fn     ~HandlerJson
          *  \brief  Class destructor
          */
         OFT_EXPORT ~HandlerJson();
     };
-    
+
 }	// END namespace oft
 
 #endif // ! _HANDLERJSON_HPP_

@@ -63,7 +63,6 @@
     #include <fstream>
     #include <iostream>
     #include <limits.h>
-    #include <oft/directory.hpp>
     #include <oft/sha256.hpp>
     #include <random>
     #include <string.h>
@@ -72,7 +71,9 @@
     #include <sys/types.h>
     #include <tuple>
     #include <unistd.h>
+	#include <boost/filesystem.hpp>
     #include <X11/Xlib.h>
+	#include <regex>
 	#include <oft/defs.hpp>
     #undef Status
 #elif defined _WIN32
@@ -82,15 +83,13 @@
     #include <curl/curl.h>
     #include <fstream>
     #include <iostream>
-    #include <oft/directory.hpp>
+	#include <boost/filesystem.hpp>
     #include <oft/sha256.hpp>
-    #include <oft/toolsbox.hpp>
     #include <random>
-    #include <string.h>
+    #include <string>
     #include <sstream>
     #include <tuple>
-    #include <Windows.h>
-    #include <direct.h>
+	#include <regex>
 	#include <oft/defs.hpp>
 #endif // ! __linux__ or _WIN32
 
@@ -109,106 +108,153 @@ namespace oft {
         return os.str();
     }
 
+    size_t write_data(void* ptr, size_t size, size_t nmemb, FILE* stream);
+
     /**
      *  \class      Explorer
      *  \brief      Class of default file explorer
      */
-    class Explorer
+    class OFT_EXPORT Explorer
     {
-    public:
-        /**
+	private:
+		/**
          *  \fn     Explorer
-         *  \brief  Class default constructor
+         *  \brief  Class default constructor. It is not intended to be instantiated.
          */
-        OFT_EXPORT Explorer();
+        Explorer();
+
+    public:
+
+		/**
+         *  \fn     fullPath
+         *  \brief  Rectifies a path using pathRectifier() and then adds gwd() at the begining if old_path is relative
+         * 
+         *  \param[in]		old_path     Input path
+		 * 
+		 * 	\return			Absolute path rectified to match current OS standards
+         */
+		static std::string fullPath(const std::string& old_path);
 
         /**
          *  \fn     checkrtsp
          *  \brief  RTSP (Real Timer Streaming Protocol) checker offers a solution to users who want to verify accessibility of a streaming server
          * 
          *  \param[in]      url     Uniform resource locator of a streaming server
+		 * 
          *  \return         true    If the streaming server is reachable
          *  \return         false   If the streaming server is unreachable
          */
-        OFT_EXPORT bool checkrtsp(const std::string& url);
+        static bool checkrtsp(const std::string& url);
+
+		/**
+         *  \fn     checkurl
+         *  \brief  Checks whether or not a file exist given its URL
+         * 
+         *  \param[in]      url     	Uniform resource locator of a file
+		 *  \param[in]      path    	Path to the cache directory
+		 *  \param[in]      verbose    	The function will print progress in std::cout if true (does not affect std::cerr)
+		 * 
+         *  \return         true    	If download is successful
+         *  \return         false   	If download is not successful
+         */
+		static std::string download(const std::string& url, const std::string& path = "", bool verbose = false);
 
         /**
          *  \fn     delfs
          *  \brief  The delfs (delete files) tool allows to delete a specific and existing file
          *  
          *  \param[in]      obj     The specified file to be deleted
+		 * 
          *  \return         true    If the file has been deleted
          *  \return         false   If the file does not exist or cannot be deleted
          */
-        OFT_EXPORT bool delfs(File obj);
-
-        /**
-         *  \fn     delfs
-         *  \brief  The delfs (delete files) tool allows to delete all files in a specific and existing directory
-         * 
-         *  \param[in]      obj     The specified directory that contains files to be deleted
-         *  \return         true    If the files have been deleted
-         *  \return         false   If the directory does not exist or the files cannot be deleted
-         */
-        OFT_EXPORT bool delfs(Directory obj);
+        static bool delfs(const std::string& path);
 
         /**
          *  \fn     empty
          *  \brief  The empty tool allows users to know if a file is empty or not
          * 
          *  \param[in]      distn   The distinguished name of the file
+		 * 
          *  \return         true    If the file is empty
          *  \return         false   If the file is not empty
          */
-        OFT_EXPORT bool empty(const std::string& distn);
+        static bool empty(const std::string& distn);
 
         /**
          *  \fn     exist
          *  \brief  File existence checker offers a solution to users who want to verify the existence of files or folders on their computer
          * 
          *  \param[in]      distn   The distinguished name of the file or folder to analyze
+		 * 
          *  \return         true    If the file or folder exists
          *  \return         false   If the or folder does not exist
          */
-        OFT_EXPORT bool exist(const std::string& distn);
+        static bool exist(const std::string& distn);
 
         /**
          *  \fn     forensic
          *  \brief  Digital image and video forensic analyzer. Use to analyze JPEG or JPG file and AVI, MPEG-4 or MATROSKA file
          * 
          *  \param[in]      distn   The distinguished name of the file to analyze
+		 * 
          *  \return         true    If the file is a JPEG, JPG, AVI, MPEG-4, MATROSKA file
          *  \return         false   If the file is not a JPEG, JPG, AVI, MPEG-4, MATROSKA file
          */
-        OFT_EXPORT bool forensic(const std::string& distn);
+        static bool forensic(const std::string& distn);
 
         /**
          *  \fn     gwd
          *  \brief  The gwd (get working directory) tool returns the name of the present/current working directory
          * 
-         *  \return                 The current working directory
+         *  \return        The current working directory
          */
-        OFT_EXPORT std::string gwd();
+        static std::string gwd();
+
+		/**
+         *  \fn     create_directories
+         *  \brief  boost::filesystem::create_directories wrapper. Creates all the non-existent directories given a path (boost accepts dir paths)
+         * 
+         *  \param[in]      path    Path containig potentially non-existent directories to create
+		 * 
+         *  \return         true    If the new directories has been created
+         *  \return         false   If the new directories already exists or cannot be created
+         */
+		static bool create_directories(const std::string& path);
 
         /**
          *  \fn     makdir
-         *  \brief  The makdir (make directory) tool allows to create a new directory
+         *  \brief  The makdir (make directory) tool allows to create new directories
          * 
-         *  \param[in]      obj     The specified directory to be created
-         *  \return         true    If the new directory has been created
-         *  \return         false   If the new directory already exists or cannot be created
+         *  \param[in]      dirpath     The specified directory tree to be created
+		 * 
+         *  \return         true    	If the new directory tree has been created
+         *  \return         false   	If the new directory tree already exists or cannot be created
          */
-        OFT_EXPORT bool makdir(Directory obj);
+        static bool makdir(const std::string& dirpath);
 
         /**
          *  \fn     remdir
          *  \brief  The remdir (remove directory) tool allows to remove a specific and existing directory
          * 
-         *  \param[in]      obj     The specified directory to be removed
-         *  \return         true    If the directory has been removed
-         *  \return         false   If the directory does not exist or cannot be removed
+         *  \param[in]      dirpath     The specified directory to be removed
+		 * 
+         *  \return         true    	If the directory has been removed
+         *  \return         false   	If the directory does not exist or cannot be removed
          */
-        OFT_EXPORT bool remdir(Directory obj);
+        static bool remdir(const std::string& dirpath);
+
+        /**
+         *  \fn     rename
+         *  \brief  Renames a file with a new name
+         *
+         *  \param[in]      oldf        The specified filepath to rename
+         *  \param[in]      newf        The new filepath applied to file
+         *
+         *  \return         true        If the file has been renamed
+         *  \return         false       If the file could not be renamed
+         */
+        static bool rename(const std::string& oldf, const std::string& newf);
 
         /**
          *  \fn     rngd
@@ -218,7 +264,7 @@ namespace oft {
          * 
          *  \return         Random number
          */
-        OFT_EXPORT std::string rngd();
+        static std::string rngd();
 
         /**
          *  \fn     screenres
@@ -226,16 +272,17 @@ namespace oft {
          * 
          *  \return         The Screen Resolution (height, width)
          */
-        OFT_EXPORT std::tuple<int, int> screenres();
+        static std::tuple<int, int> screenres();
 
         /**
          *  \fn     sha256Sum
          *  \brief  The Secure Hash Algorithm 256 Sum is designed to verify data integrity using the SHA-256
          * 
          *  \param[in]      message The message to hash
+		 * 
          *  \return         Hash
          */
-        OFT_EXPORT std::string sha256Sum(const std::string& message);
+        static std::string sha256Sum(const std::string& message);
 
         /**
          *  \fn     vi
@@ -243,15 +290,10 @@ namespace oft {
          * 
          *  \param[in]      distn   The distinguished name
          *  \param[in]      content The text to insert
+		 * 
          *  \return         void
          */
-        OFT_EXPORT void vi(const std::string& distn, const std::string& content);
-
-        /**
-         *  \fn     ~Explorer
-         *  \brief  Class destructor
-         */
-        OFT_EXPORT ~Explorer();
+        static void vi(const std::string& distn, const std::string& content);
     };
     
 }	// END namespace oft

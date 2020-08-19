@@ -1,0 +1,11 @@
+{
+	"logpath" : "../var/oft.log",
+	"dbpath" : "../data/database/openfacetracker.db",
+
+	"cachepath" : "../tmp",
+
+	"haarpath" : "../data/face/haarcascade_frontalface_alt2.xml",
+
+	"pcapath" : "../data/face/pca_gen_eq.xml",
+	"facemarkpath" : "../data/face/lbfmodel.yaml"
+}

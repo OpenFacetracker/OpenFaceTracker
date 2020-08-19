@@ -60,11 +60,9 @@
  */
 #ifdef __linux__
     #include <iostream>
-    #include <oft/toolsbox.hpp>
     #include <string.h>
 #elif defined _WIN32
     #include <iostream>
-    #include <oft/toolsbox.hpp>
     #include <string.h>
 #endif // ! __linux__ or _WIN32
 
@@ -97,7 +95,7 @@ namespace oft {
      *  \class      Sha256
      *  \brief      Class that help to manage Secure Hash Algorithm 256
      */
-    class Sha256 : public ToolsBox
+    class Sha256
     {
     protected:
         typedef unsigned char uint8;                                                /*!< Alias for unsigned char */
@@ -126,11 +124,10 @@ namespace oft {
 
         /**
          *  \fn     Sha256
-         *  \brief  Class parameterized constructor
+         *  \brief  Class default constructor
          * 
-         *  \param[in]      _flag           Power switch (must be true)
          */
-        Sha256(bool _flag);
+        Sha256();
 
         /**
          *  \fn     Sha256

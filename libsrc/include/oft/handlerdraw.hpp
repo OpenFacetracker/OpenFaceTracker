@@ -55,11 +55,10 @@
  */
 #ifdef __linux__
     #include <iostream>
-    #include <oft/toolsbox.hpp>
     #include <opencv2/opencv.hpp>
+	#include <oft/defs.hpp>
 #elif defined _WIN32
     #include <iostream>
-    #include <oft/toolsbox.hpp>
     #include <opencv2/opencv.hpp>
 	#include <oft/defs.hpp>
 #endif // ! __linux__ or _WIN32
@@ -69,26 +68,16 @@ namespace oft {
      *  \class      HandlerDraw
      *  \brief
      */
-    class HandlerDraw : public ToolsBox
+    class OFT_EXPORT HandlerDraw
     {
-    private:
-        
-    public:
-        /**
+	private:
+		/**
          *  \fn     HandlerDraw
-         *  \brief  Class parameterized constructor
-         * 
-         *  \param[in]      _flag           Power switch (must be true)
+         *  \brief  Class default constructor. It is not intended to be instantiated.
          */
-        OFT_EXPORT HandlerDraw(bool _flag);
+        HandlerDraw();
 
-        /**
-         *  \fn     HandlerDraw
-         *  \brief  Class copy constructor
-         * 
-         *  \param[in]      obj             HandlerDraw object
-         */
-        OFT_EXPORT HandlerDraw(HandlerDraw const& obj);
+    public:
 
         /**
          *  \fn     line
@@ -102,7 +91,7 @@ namespace oft {
          *  \param[in]      gap             Point gap
          *  \return         void
          */
-        OFT_EXPORT void line(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int gap);
+        static void line(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int gap);
 
         /**
          *  \fn     rectangle
@@ -117,7 +106,7 @@ namespace oft {
          *  \param[in]      cornerRadius    Corner radius of the rectangle
          *  \return         void
          */
-        OFT_EXPORT void rectangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType, const int cornerRadius);
+        static void rectangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType, const int cornerRadius);
 
         /**
          *  \fn     rectangle
@@ -133,7 +122,7 @@ namespace oft {
          *  \param[in]      status          If true enable rounded corner, if false enable lines
          *  \return         void
          */
-        OFT_EXPORT void rectangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType, const int cornerRadius, bool status);
+        static void rectangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType, const int cornerRadius, bool status);
 
         /**
          *  \fn     rectangle
@@ -149,15 +138,7 @@ namespace oft {
          *  \param[in]      gap             Point gap
          *  \return         void
          */
-        OFT_EXPORT void rectangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType, const int cornerRadius, const int gap);
-
-        /**
-         *  \fn     stop
-         *  \brief  Function that alows users to stop using the tool
-         * 
-         *  \return         void
-         */
-        OFT_EXPORT void stop();
+        static void rectangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType, const int cornerRadius, const int gap);
         
         /**
          *  \fn     triangle
@@ -170,24 +151,21 @@ namespace oft {
          *  \param[in]      thickness       Thickness of lines that make up the triangle
          *  \param[in]      lineType        Type of the line
          */
-        OFT_EXPORT void triangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType);
+        static void triangle(cv::Mat& img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, const int thickness, const int lineType);
 
         /**
          *  \fn     drawUI
-         *  \brief  Function that draws a rectangle on face position and puts text on top
+         *  \brief  Function that draws a rectangle on face position and puts text on top.
+		 *  Draws only a blue rectangle when label.empty(),
+		 *  draws a red rectangle with the label "UNKNOWN" if confidence < 0,
+		 * 	draws a blue rectangle with the label "<label> (<confidence>)" otherwise.
          *
          *  \param[in]      img             Image
          *  \param[in]      face_pos        Position of the face on img
          *  \param[in]      label           Predicted label to write
          *  \param[in]      confidence      Confidence score of the prediction
          */
-        OFT_EXPORT void drawUI(cv::Mat& img, cv::Rect& face_pos, std::string label = "", double confidence = -1);
-
-        /**
-         *  \fn     ~HandlerDraw
-         *  \brief  Class destructor
-         */
-        OFT_EXPORT ~HandlerDraw();
+        static void drawUI(cv::Mat& img, cv::Rect& face_pos, std::string label = "", double confidence = -1);
     };
     
 }	// END namespace oft

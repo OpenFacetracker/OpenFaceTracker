@@ -2,220 +2,52 @@
 
 namespace oft {
 
-    Explorer::Explorer() {}
-    
-    Explorer::~Explorer() {}
+
+
+    size_t write_data(void* ptr, size_t size, size_t nmemb, FILE* stream) {
+        size_t written = fwrite(ptr, size, nmemb, stream);
+        return written;
+    }
+
+	Explorer::Explorer() {}
+
+	std::string Explorer::fullPath(const std::string& old_path) {
+		return boost::filesystem::absolute(boost::filesystem::path(old_path)).string();
+	}
 
     std::string Explorer::gwd() {
-        std::string result;
-
-        #ifdef __linux__
-            char cwd[PATH_MAX];
-            if (getcwd(cwd, sizeof(cwd)) != NULL) {
-                result = std::string(cwd); 
-            }
-        #elif defined _WIN32
-            char buffer[MAX_PATH];
-
-            if (_getcwd(buffer, sizeof(char) * MAX_PATH) != NULL) {
-                result = std::string(buffer);
-            }
-            /*
-            if (GetModuleFileName(NULL, (LPWSTR)std::wstring(bufstr.begin(), bufstr.end()).c_str(), MAX_PATH) != NULL) {
-                std::string::size_type pos = bufstr.find_last_of("\\/");
-                result = bufstr.substr(0, pos);
-            }*/
-        #endif // ! __linux__ or _WIN32
-
-        return result;
+        return boost::filesystem::current_path().string();
     }
 
-    bool Explorer::makdir(Directory obj) {
-        bool status = false;
+	bool Explorer::create_directories(const std::string& path) {
+		boost::filesystem::path filepath(path);
 
-        #ifdef __linux__
-            int flag;
-            if ((flag = mkdir(obj.distn().c_str(), S_IRWXU | S_IRGRP |  S_IXGRP | S_IROTH | S_IXOTH)) != -1) {
-                // Directory created
-                status = true;
-            }
-            else {
-                // Directory already exists
-                status = false;
-            }
-        #elif defined _WIN32
-            if (CreateDirectoryW(std::wstring(obj.distn().begin(), obj.distn().end()).c_str(), NULL)) {
-                // Directory created
-                status = true;
-            }
-            else if (ERROR_ALREADY_EXISTS == GetLastError()) {
-                // Directory already exists
-                status = false;
-            }
-            else {
-                // Failed for some other reason
-                status = false;
-            }
-        #endif // ! __linux or _WIN32
+		if(!boost::filesystem::is_directory(filepath)) {
+			filepath = filepath.parent_path();
+		}
 
-        return status;
+		return boost::filesystem::create_directories(filepath);
+	}
+
+    bool Explorer::makdir(const std::string& dirpath) {
+		return boost::filesystem::create_directories(boost::filesystem::path(dirpath));
     }
 
-    bool Explorer::remdir(Directory obj) {
-        bool status = false;
-
-         #ifdef __linux__
-            int flag;
-            if ((flag = rmdir(obj.distn().c_str())) != -1) {
-                // Directory removed
-                status = true;
-            }
-            else {
-                // Directory not removed
-                status = false;
-            }
-        #elif defined _WIN32
-            if (RemoveDirectoryW(std::wstring(obj.distn().begin(), obj.distn().end()).c_str())) {
-                // Directory removed
-                status = true;
-            }
-            else {
-                // Directory not removed
-                status = false;
-            }
-        #endif // ! __linux or _WIN32
-
-        return status;
+    bool Explorer::remdir(const std::string& dirpath) {
+        return boost::filesystem::remove_all(boost::filesystem::path(dirpath));
     }
 
-    bool Explorer::delfs(File obj) {
-        bool status = false;
-
-        #ifdef __linux__
-            if (remove(obj.distn().c_str()) != 0) {
-                // File deleted
-                status = true;
-            }
-            else {
-                // File not deleted
-                status = false;
-            }
-        #elif defined _WIN32
-            if (DeleteFileW(std::wstring(obj.distn().begin(), obj.distn().end()).c_str()) != NULL) {
-                // File deleted
-                status = true;
-            }
-            else {
-                // File not deleted
-                status = false;
-            }
-        #endif // ! __linux__ or _WIN32
-
-        return status;
-    }
-
-    bool Explorer::delfs(Directory obj) {
-        bool status = false;
-
-        #ifdef __linux__
-            DIR *dir = opendir(obj.distn().c_str());
-            if (dir) {
-                // Directory exists
-                struct dirent *file = NULL;
-                char filePath[512];
-
-                while ((file = readdir(dir)) != NULL) {
-                    // Build the path for each file in the folder
-                    sprintf(filePath, "%s/%s", obj.distn().c_str(), file->d_name);
-                    remove(filePath);
-                }
-                closedir(dir);
-                status = true;
-            }
-            else if (ENOENT == errno) {
-                // Directory does not exist
-                status = false;
-            }
-            else {
-                // Failed for some reasons
-                status = false;
-            }
-        #elif defined _WIN32
-            
-            WIN32_FIND_DATA file;
-            HANDLE searches;
-            std::string obj_distn = obj.distn();
-
-            std::string filePath = obj_distn + "\\*.*";
-
-            std::wstring filestr(filePath.begin(), filePath.end());
-            searches = FindFirstFileW(filestr.c_str(), (LPWIN32_FIND_DATAW)&file);
-            if (searches != NULL) {
-                do {
-                    // Build the path for each file in the folder
-                    std::wstring wstrFileName = std::wstring((wchar_t*)file.cFileName);
-
-                    filestr = std::wstring(obj_distn.begin(), obj_distn.end()) + L"\\" + wstrFileName;
-
-                    DeleteFileW(filestr.c_str());
-
-                } while (FindNextFileW(searches, (LPWIN32_FIND_DATAW)&file));
-                FindClose(searches);
-                status = true;
-            }
-            else if (ERROR_FILE_NOT_FOUND == GetLastError()) {
-                // Files don't exist
-                status = false;
-            }
-            else {
-                // Files don't exist
-                status = false;
-            }
-        #endif // ! __linux__ or _WIN32
-
-        return status;
+    bool Explorer::delfs(const std::string& path) {
+        return boost::filesystem::remove_all(boost::filesystem::path(path));
     }
 
     bool Explorer::empty(const std::string& distn) {
-        bool status = false;
-
-        // Load file
-        std::ifstream file(distn, std::ios::in);
-
-        // Check if file is opened
-        if (file) {
-            // File is opened
-            std::string line;
-            std::string content = "";
-
-            // Getting content from file
-            while (std::getline(file, line)) {
-                content += line + "\n";
-            }
-
-            // Check if content is empty
-            if (content.empty() || content.compare("") == 0) {
-                // Content is empty
-                status = true;
-            }
-            else {
-                // Content is not empty
-                status = false;
-            }
-            // Close file
-            file.close();
-        }
-        else {
-            // File cannot be opened
-            status = false;
-        }
-
-        return status;
+		return boost::filesystem::is_empty(boost::filesystem::path(distn));
     }
 
     bool Explorer::forensic(const std::string& distn) {
         bool status = false;
-
+		// TODO RETURN ENUM
         // Verifying extension
         std::size_t pos = distn.rfind(".");
         if (pos == std::string::npos) {
@@ -310,49 +142,140 @@ namespace oft {
     }
 
     bool Explorer::exist(const std::string& distn) {
-        bool status = false;
-
-        std::ifstream file(distn.c_str());
-        if (file.good())  {
-            // The file exists
-            status = true;
-        }
-        else {
-            // The file does not exist
-            #ifdef __linux__
-                DIR* dir = opendir(distn.c_str());
-                if (dir) {
-                    // The directory exists
-                    closedir(dir);
-                    status = true;
-                }
-                else if (ENOENT == errno) {
-                    // The directory does not exist
-                    status = false;
-                }
-                else {
-                    // Failed for some reasons
-                    status = false;
-                }
-            #elif defined _WIN32
-                DWORD file_attr = GetFileAttributesW(std::wstring(distn.begin(), distn.end()).c_str());
-                if (file_attr == INVALID_FILE_ATTRIBUTES) {
-                    // Failed for some reasons
-                    status = false;
-                }
-                else if (file_attr & FILE_ATTRIBUTE_DIRECTORY) {
-                    // The directory exits
-                    status = true;
-                }
-                else {
-                    // The directory does not exist
-                    status = false;
-                }
-            #endif // ! __linux__ or _WIN32
-        }
-
-        return status;
+        return boost::filesystem::exists(boost::filesystem::path(distn));
     }
+
+    bool Explorer::rename(const std::string& oldf, const std::string& newf) {
+
+        boost::filesystem::path old_p(oldf);
+        boost::filesystem::path new_p(newf);
+
+        boost::system::error_code err;
+
+        boost::filesystem::rename(old_p, new_p, err);
+
+        return err.value() == boost::system::errc::success;
+    }
+
+	std::string Explorer::download(const std::string& url, const std::string& path, bool verbose) {
+
+		// Check if url is indeed and URL
+
+		// URL regex
+		std::regex urlregex("^http[s]?:\\/\\/.*$");
+        
+        if(!std::regex_match(url, urlregex)) {
+			// url is not an URL, we assume it is a filepath
+			return url;
+		}
+		
+		// Ensure path exists
+		Explorer::create_directories(path);
+
+		// Check if url is a youtube url (https://gist.github.com/rodrigoborgesdeoliveira/987683cfbfcc8d800192da1e73adc486)
+		const std::regex ytregex("(\\/|%3D|v=)([0-9A-z-_]{11})([%#?&]|$)");
+		std::smatch match;
+
+		if(std::regex_search(url, match, ytregex)) {
+			// a youtube token has been found in url, the url should be from youtube
+
+			std::string filepath = path + "/" + match.str(2) + ".mp4";
+
+			// if filepath already exists, then skip downloading step
+			if(Explorer::exist(filepath)) {
+				if (verbose) std::cout << "Video already downloaded in cache (" << filepath << ")" << std::endl;
+				return filepath;
+			}
+
+			std::string cmd = "cd ../tmp && youtube-dl -q --hls-prefer-ffmpeg --id \"" + url + "\"";
+
+			if (verbose) std::cout << "Downloading video" << std::endl;
+			system(cmd.c_str());
+			if (verbose) std::cout << "Downloading video - done" << std::endl;
+
+			return filepath;
+		}
+
+        std::string oldpath = path + "/cache";
+        std::string filepath;
+
+		//  Start a libcurl easy session
+        CURL *curl = curl_easy_init();
+
+		if (curl) {
+
+			// If libcurl easy session is initialized
+
+			// Create new file (c-style)
+			FILE* cache = NULL;
+			errno_t status = fopen_s(&cache, oldpath.c_str(), "wb");
+
+			if(!cache || status) {
+
+                char err_msg[256];
+                strerror_s(err_msg, 256, status);
+
+				// Report error
+				std::cerr << err_msg << std::endl;
+
+				std::exit(EXIT_FAILURE);
+			}
+
+			// Define resource
+			CURLcode res;
+
+			// Tell libcurl how to behave
+			curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, cache); 
+			curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
+
+			//  Perform a file transfer synchronously
+			res = curl_easy_perform(curl);
+
+			if (res == CURLE_OK) {
+				// File exists
+
+                char* ct = NULL;
+                res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+
+                if (!res && ct) {
+                    // ct is of format "<type>/<extension>"
+                    const char* ext = strrchr(ct, int('/')) + 1;
+                    filepath = oldpath + "." + std::string(ext);
+
+                    fclose(cache);
+
+				    if (verbose) std::cout << "File successfully downloaded (" << filepath << ")" << std::endl;
+
+                    if (!Explorer::rename(oldpath, filepath))
+                        std::cerr << "Error when renaming '" << oldpath << "' to '" << filepath << "'" << std::endl;
+                }
+                else {
+                    // CURL encountered an error
+                    std::cerr << "CURL ERROR : " << curl_easy_strerror(res) << std::endl;
+
+                    // return given url
+                    filepath = url;
+
+                    fclose(cache);
+                }
+			}
+			else {
+  				// CURL encountered an error
+				std::cerr << "CURL ERROR : " << curl_easy_strerror(res) << std::endl;
+				
+				// return given url
+				filepath = url;
+
+                fclose(cache);
+			}
+
+			curl_easy_cleanup(curl);
+		}
+
+		return filepath;
+	}
 
     bool Explorer::checkrtsp(const std::string& url) {
         bool status = false;
@@ -532,7 +455,7 @@ namespace oft {
             width = scrn->width;
         #elif defined _WIN32
             // Get height of screen
-        height = (int)GetSystemMetrics(SM_CYSCREEN);
+        	height = (int)GetSystemMetrics(SM_CYSCREEN);
 
             // Get width of screen
             width  = (int) GetSystemMetrics(SM_CXSCREEN);
@@ -546,7 +469,7 @@ namespace oft {
         unsigned char digest[Sha256::DIGEST_SIZE];
         memset(digest, 0, Sha256::DIGEST_SIZE);
 
-        Sha256 sh = Sha256(true);
+        Sha256 sh = Sha256();
         sh.update((unsigned char*)message.c_str(), (unsigned int)message.length());
         sh.final(digest);
     

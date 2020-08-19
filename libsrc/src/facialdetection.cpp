@@ -2,77 +2,50 @@
 
 namespace oft {
 
+	FacialDetection::FacialDetection() {}
+
     const cv::Size FacialDetection::face_size = cv::Size(60, 60);
 
-    FacialDetection::FacialDetection(bool _fuse) : GlobalAnalysis(_fuse) {
+    FacialDetection::FacialDetection(const std::string& facedetect) {
 
-        // Define an Explorer object
-        Explorer e = Explorer();
+        const std::string& classifier = Explorer::fullPath(facedetect);
 
-        #ifdef __linux__
-            #ifdef API
-                const char file[] = "/../../../data/classifier/face/haarcascade_frontalface_alt2.xml";
-            #else
-                const char file[] = "/../data/classifier/face/haarcascade_frontalface_alt2.xml";
-            #endif // ! API
-        #elif defined _WIN32
-            #ifdef API
-                const char file[] = "\\..\\..\\..\\data\\classifier\\face\\haarcascade_frontalface_alt2.xml";
-            #else
-                const char file[] = "\\..\\data\\classifier\\face\\haarcascade_frontalface_alt2.xml";
-            #endif // ! API
-        #endif // ! __linux__ or _WIN32
-
-        std::string classifier = e.gwd() + std::string(file);
-
-        // Check file
-        if (!e.exist(classifier)) {
-
-            // Define a HandlerLog object
-            HandlerLog hl = HandlerLog(true);
+        // Check cascade classifier
+        if (!Explorer::exist(classifier)) {
 
             // Send a log event
-            hl.create("Missing classifier files at " + classifier);
-
-            // Erase the string or making it empty
-            classifier.clear();
+            HandlerLog::log("Missing classifier files at " + classifier);
 
             // Terminates the process normally, performing the regular cleanup for terminating programs.
             std::exit(EXIT_FAILURE);
         }
 
-        this->haarcascade = cv::CascadeClassifier();
+        // Load classifier from a file
+        this->haarcascade = cv::CascadeClassifier(classifier);
+	}
 
-        // Load a classifier from a file
-        this->haarcascade.load(classifier);
-    }
+    /*FacialDetection::FacialDetection(FacialDetection const& obj) {
+		this->haarcascade = cv::CascadeClassifier(obj.haarcascade);
+    }*/
 
-    FacialDetection::FacialDetection(FacialDetection const& obj) : GlobalAnalysis(obj) {
-
-    }
-
-    std::vector<cv::Rect> FacialDetection::perform(cv::Mat _frame) {
+    void FacialDetection::perform(cv::Mat frame, std::vector<cv::Rect>& positions, bool isEqHist) {
         cv::Mat frame_gray;
-        if (_frame.type() != CV_8UC1)
-            cv::cvtColor(_frame, frame_gray, cv::COLOR_BGR2GRAY);
+        if (frame.type() != CV_8UC1)
+            cv::cvtColor(frame, frame_gray, cv::COLOR_BGR2GRAY);
         else
-            frame_gray = _frame;
-        cv::equalizeHist(frame_gray, frame_gray);
+            frame_gray = frame;
 
-        std::vector<cv::Rect> faces(0);
+		cv::Mat hist = frame_gray;
 
-        if(frame_gray.empty()) {
-            std::cout << "oopsie" << std::endl;
-            return faces;
-        }
+		if(!isEqHist)	
+        	cv::equalizeHist(frame_gray, hist);
 
-        haarcascade.detectMultiScale(frame_gray, faces, 1.1, 3, 0 | cv::CASCADE_SCALE_IMAGE, cv::Size(80,80));
+        if(hist.empty())
+            return;
 
-        return faces;
-    }
+		positions.clear();
 
-    void FacialDetection::stop() {
-        this->fuse = false;
+        haarcascade.detectMultiScale(hist, positions, 1.1, 5, 0, cv::Size(80, 80));
     }
 
     FacialDetection::~FacialDetection() {}
