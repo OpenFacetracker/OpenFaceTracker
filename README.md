@@ -11,9 +11,16 @@ Installation scripts for both Linux and Windows are available to configure the w
 - Git v2.x
 - Windows or Linux (Ubuntu, Debian/Kali, Mageia or CentOS), x64 is preferable
 - Visual Studio 2017 or newer with C++ Dev Tools (Windows Only)
-- The program will open OpenCV Windows so a Graphical Interface support is needed
+- PowerShell with admin priviledges (for Windows)
+- The program will open OpenCV windows so a Graphical Interface support is needed
 
 ### Installing
+
+To install the project, the easiest way is to clone the repository to your computer. We recommend you choose a short path like `/home/OpenFaceTracker` or `C:\OpenFaceTracker` with no spaces or special characters.
+
+```
+C:\> git clone https://github.com/MaximeBeasse/OpenFaceTracker
+```
 
 #### Linux :
 
@@ -80,52 +87,52 @@ A configuration file for oftapp is located in `./data/config.json`. It defines p
 
 >Displays help
 ```
-	/OpenFaceTracker/bin>oftapp --help
+/OpenFaceTracker/bin>oftapp --help
 ```
 
 >Displays version
 ```
-	/OpenFaceTracker/bin>oftapp --help
+/OpenFaceTracker/bin>oftapp --help
 ```
 
 >Opens the first connected webcam and do facial analysis in real time
 ```
-	/OpenFaceTracker/bin>oftapp -d CAM0
+/OpenFaceTracker/bin>oftapp -d CAM0
 ```
 
 >Reads a local image file and do facial analysis
 ```
-	/OpenFaceTracker/bin>oftapp -i "path/to/image.png"
+/OpenFaceTracker/bin>oftapp -i "path/to/image.png"
 ```
 
 >Reads a local video file and do facial analysis
 ```
-	/OpenFaceTracker/bin>oftapp -p "path/to/video.mp4"
+/OpenFaceTracker/bin>oftapp -p "path/to/video.mp4"
 ```
 
 >Downloads the youtube video in './tmp' and do facial analysis on cached file
 ```
-	/OpenFaceTracker/bin>oftapp -p https://www.youtube.com/watch?v=dQw4w9WgXcQ
+/OpenFaceTracker/bin>oftapp -p https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
 >Downloads a remote file in './tmp' and do facial analysis
 ```
-	/OpenFaceTracker/bin>oftapp -u https://url.to/a/remote/file.jpg
+/OpenFaceTracker/bin>oftapp -u https://url.to/a/remote/file.jpg
 ```
 
 >Opens the webcam and only detect faces. A sample is taken each frame the user left clicks. While exiting, "John" will be inserted in database with its associated data.
 ```
-	/OpenFaceTracker/bin>oftapp -d CAM0 -a John
+/OpenFaceTracker/bin>oftapp -d CAM0 -a John
 ```
 
 >The same as above but each detected face at every frame is taken as sample for inserting or updating "John". Use with caution!
 ```
-	/OpenFaceTracker/bin>oftapp -d CAM0 -a John -y
+/OpenFaceTracker/bin>oftapp -d CAM0 -a John -y
 ```
 
 >Works with every source given
 ```
-	/OpenFaceTracker/bin>oftapp -i "../path/to/source.jpeg" -a Smith -y
+/OpenFaceTracker/bin>oftapp -i "../path/to/source.jpeg" -a Smith -y
 ```
 
 ## Explications
@@ -163,6 +170,7 @@ Another advantage of using these faces is that they are always centered and the 
 
 ## TODO
 
+- [ ] Implement JSON file writing and propose -o|--output option
 - [ ] Add configuration file linkage via oftapp option
 - [ ] Build Doxygen documentation and publish in Github Pages
 - [ ] Test RTSP Stream Support
