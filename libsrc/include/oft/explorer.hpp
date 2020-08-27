@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-// AUTHOR: Hethsron Jedaël BOUEYA
+// AUTHOR: Maxime BEASSE
 //
 //                             LICENSE AGREEMENT
-// Copyright (c) 2019, ESIEA Campus of Laval, France
+// Copyright (c) 2020, ESIEA Campus of Laval, France
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -39,19 +39,19 @@
  *
  *  \details        System :                OpenFaceTracker
  *                  Component Name :        oft
- *                  Status :                Version 5.0.0 Release 1
+ *                  Status :                Version 6.0.0 Release 1
  *                  Language :              C++
  * 
  *                  Platform Dependencies:  GNU/Linux, Windows
  * 
  *  \copyright      GPLv3+ : GNU GPL version 3 or later
  *                  Licencied Material - Property of CNS (Confiance Numérique et Sécurité)
- *                  © Copyright - ESIEA Campus Laval 2019
+ *                  © Copyright - ESIEA Campus Laval 2020
  * 
- *	\author			Hethsron Jedaël BOUEYA (boueya@et.esiea.fr)
+ *	\author			Maxime BEASSE (beasse@et.esiea.fr)
  * 
  * 	\bug			No known bug to date
- *  \date 			3rd June 2019
+ *  \date 			19th June 2020
  */
 #ifdef __linux__
     #include <cstdio>

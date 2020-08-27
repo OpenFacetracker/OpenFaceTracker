@@ -1,4 +1,10 @@
-OpenFaceTracker is authored by:
+# Authors
 
-* Richard REY (Project Manager)
-* Maxime BEASSE (Software Engineer)
+### Original idea & project management: 
+* Richard REY (aka Rexy)
+
+### Developement
+* Maxime BEASSE
+* Hethsron Jedaël BOUEYA
+* Tony DELHOMMAIS
+* Camille LAURENCE

@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #   This script is part of OpenFaceTracker project
-#
-#   Software Engineer :         Hethsron Jedaël BOUEYA
-#   Project Manager :           Richard REY
-#   Date :                      3rd June 2019
-#   Version :                   5.0.0
-#   Copyright (C) :             Laboratoire CNS/(C+V)°
-#                               ESIEA - Laval 2019
+#   
+#   Software Engineer :     Hethsron Jedaël BOUEYA
+#   Project Manager :       Richard REY
+#   Date :                  27th August 2020
+#   Version :               6.0.0
+#   Copyright (C) :         Laboratoire CNS/(C+V)°
+#                           ESIEA - Laval 2020
 #
 #   This text plain is developed in the hope that it will be useful
 #   but WITHOUT ANY WARRANTY ; without even the implied warranty of
@@ -244,8 +244,8 @@ function installMissingPKG() {
 
 #   Display Welcome message
 ${ECHO} "OpenFaceTracker For Developers"
-${ECHO} "GNU GPL Version 5.0.0"
-${ECHO} "© Copyright - ESIEA Campus Laval 2019"
+${ECHO} "GNU GPL Version 6.0.0"
+${ECHO} "© Copyright - ESIEA Campus Laval 2020"
 ${ECHO} "CNS (Confiance Numérique et Sécurité)\n"
 ${ECHO} "Starting the configuration of your GNU/Linux Operating System"
 ${ECHO} ""

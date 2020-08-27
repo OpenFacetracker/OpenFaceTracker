@@ -65,6 +65,10 @@ namespace oft {
                     // It is a JPEG or JPG file
                     status = true;
                 }
+				else if (magic[0] == 0x89 && magic[1] == 0x50 && magic[2] == 0x4E && magic[3] == 0x47 && magic[4] == 0x0D && magic[5] == 0x0A && magic[6] == 0x1A && magic[7] == 0x0A) {
+                    // It is a PNG file
+                    status = true;
+                }
                 else if ((magic[0] == 0x52 && magic[1] == 0x49 && magic[2] == 0x46 && magic[3] == 0x46) || (magic[0] == 0x41 && magic[1] == 0x56 && magic[2] == 0x49 && magic[3] == 0x20)) {
                     // It is a AVI file
                     status = true;
@@ -94,8 +98,13 @@ namespace oft {
             // Getting extension
             std::string extension = distn.substr(pos + 1);
 
+			// Lowercase
+			std::for_each(extension.begin(), extension.end(), [] (char& c) {
+				c = std::tolower(c);
+			});
+
             // Verifying extension
-            if (extension == "jpg" || extension == "jpeg" || extension == "avi" || extension == "mp4" || extension == "mkv" || extension == "MKV") {
+            if (extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "avi" || extension == "mp4" || extension == "mkv") {
                 // If the extensions match
 
                 // Getting magic number
@@ -110,6 +119,10 @@ namespace oft {
                         // It is a JPEG or JPG file
                         status = true;
                     }
+					else if (magic[0] == 0x89 && magic[1] == 0x50 && magic[2] == 0x4E && magic[3] == 0x47 && magic[4] == 0x0D && magic[5] == 0x0A && magic[6] == 0x1A && magic[7] == 0x0A) {
+						// It is a PNG file
+						status = true;
+                	}
                     else if ((magic[0] == 0x52 && magic[1] == 0x49 && magic[2] == 0x46 && magic[3] == 0x46) || (magic[0] == 0x41 && magic[1] == 0x56 && magic[2] == 0x49 && magic[3] == 0x20)) {
                         // It is a AVI file
                         status = true;

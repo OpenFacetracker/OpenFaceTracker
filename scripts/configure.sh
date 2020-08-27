@@ -4,7 +4,7 @@
 #   
 #   Software Engineer :     Hethsron Jedaël BOUEYA
 #   Project Manager :       Richard REY
-#   Date :                  3rd June 2019
+#   Date :                  27th August 2020
 #   Version :               6.0.0
 #   Copyright (C) :         Laboratoire CNS/(C+V)°
 #                           ESIEA - Laval 2020
@@ -203,6 +203,7 @@ declare -a PKGS_CENTOS=(
                 "v4l-utils-devel-tools"
                 "yasm"
 				"youtube-dl"
+				"nlohmann-json-dev"
 )
 
 declare -a PKGS_DEBIAN=(
@@ -276,6 +277,7 @@ declare -a PKGS_DEBIAN=(
                 "yasm"
 				"youtube-dl"
                 "zlib1g-dev"
+				"nlohmann-json-dev"
 )
 
 declare -a PKGS_KALI=(
@@ -349,6 +351,7 @@ declare -a PKGS_KALI=(
                 "yasm"
 				"youtube-dl"
                 "zlib1g-dev"
+				"nlohmann-json-dev"
 )
 
 declare -a PKGS_MAGEIA=(

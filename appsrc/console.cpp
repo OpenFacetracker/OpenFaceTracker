@@ -83,7 +83,7 @@ namespace oft {
         std::cout << "\t" << "-h, --help" << "\t\t" << "display this help and exit" << std::endl;
         std::cout << "\t" << "-V, --version" << "\t\t" << "display the version of the application and exit" << std::endl;
         std::cout << "\t" << "-d, --device" << "\t\t" << "identify a person from a video frame (from <SOURCE> that could be CAM0, CAM1 or CAM2)" << std::endl;
-        std::cout << "\t" << "-i, --image" << "\t\t" << "identify a person from a digital image (from <SOURCE> that could be a JPEG or JPG file)" << std::endl;
+        std::cout << "\t" << "-i, --image" << "\t\t" << "identify a person from a digital image (from <SOURCE> that could be a JPEG or PNG file)" << std::endl;
         std::cout << "\t" << "-p, --player" << "\t\t" << "identify a person from a video (from <SOURCE> that could be a AVI, MPEG-4 or MATROSKA file)" << std::endl;
         std::cout << "\t" << "-u, --url" << "\t\t" << "identify a person from a video frame (<SOURCE> must be a reachable streaming URL with RTSP or HTTP scheme)" << std::endl;
         std::cout << "\t" << "-a, --add" << "\t\t" << "add the identified person's sample to database as <LABEL>. Works only when used with -i|--image" << std::endl;
@@ -261,7 +261,7 @@ namespace oft {
                             // If it is an unauthorized image file
                             std::cerr << "Invalid format" << std::endl;
                             std::cerr << "You should use the formats provided for this purpose" << std::endl;
-                            std::cerr << "Authorized formats : JPEG or JPG" << std::endl;
+                            std::cerr << "Authorized formats : JPEG or PNG" << std::endl;
                         }
                     }
                     else {

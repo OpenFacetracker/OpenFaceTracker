@@ -8,35 +8,36 @@ Installation scripts for both Linux and Windows are available to configure the w
 
 ### Prerequisites
 
-- Git v2.x
 - Windows or Linux (Ubuntu, Debian/Kali, Mageia or CentOS), x64 is preferable
-- Visual Studio 2017 or newer with C++ Dev Tools (Windows Only)
-- PowerShell with admin priviledges (for Windows)
-- The program will open OpenCV windows so a Graphical Interface support is needed
+- GUI, since OFT does not support command-line only mode yet
+- [Git](https://git-scm.com/downloads)
+- [Visual Studio 2017](https://docs.microsoft.com/fr-fr/visualstudio/install/install-visual-studio?view=vs-2019) or newer with C++ Dev Tools (Windows only)
+- [PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-7) with admin priviledges (Windows only)
 
 ### Installing
 
-To install the project, the easiest way is to clone the repository to your computer. We recommend you choose a short path like `/home/OpenFaceTracker` or `C:\OpenFaceTracker` with no spaces or special characters.
+To install the project, the easiest way is to clone the repository to your computer. We recommend you choose a short path like `C:\OpenFaceTracker` with no spaces or special characters.
 
-```
-C:\> git clone https://github.com/MaximeBeasse/OpenFaceTracker
+```cmd
+> git clone https://github.com/MaximeBeasse/OpenFaceTracker
 ```
 
 #### Linux :
 
-```
+```cmd
 OpenFaceTracker/scripts/$ chmod u+x configure.sh install.sh
 OpenFaceTracker/scripts/$ ./configure.sh
 OpenFaceTracker/scripts/$ ./install.sh
 ```
-These scripts will install the necessary packages using the default package manager.
+These scripts will install the necessary packages using the default package manager on your system.
 
 
 #### Windows :
 
-Launch Powershell with admin privileges.
+Launch Powershell with admin privileges. The script is not signed yet, so you need to change execution policy, or you can add 
 
-```
+```cmd
+PS C:\OpenFaceTracker\scripts> set-executionpolicy unrestricted
 PS C:\OpenFaceTracker\scripts> ./installation.ps1
 ```
 
@@ -48,7 +49,7 @@ Building OpenFaceTracker is done using CMake, installed by the scripts. For both
 
 #### Linux :
 
-```
+```cmd
 OpenFaceTracker/$ mkdir build
 OpenFaceTracker/$ cb build
 OpenFaceTracker/build/$ cmake ..
@@ -59,7 +60,7 @@ OpenFaceTracker/build/$ make
 
 In order for the Makefile to build with Visual Studio C++ Dev Tools, you need to build using `x64 Native Tools Command Prompt for VS 2019` command prompt. Refer to the [microsoft documentation](https://docs.microsoft.com/en-gb/cpp/build/how-to-enable-a-64-bit-visual-cpp-toolset-on-the-command-line?view=vs-2019) if needed.
 
-```
+```cmd
 **********************************************************************
 ** Visual Studio 2019 Developer Command Prompt v16.7.0
 ** Copyright (c) 2020 Microsoft Corporation
@@ -73,7 +74,7 @@ C:\OpenFaceTracker\build>nmake
 ```
 _______________________________________________________________________________
 
-Once built, OpenFaceTracker library binaries will be in `./lib` and the OpenFaceTracker Application will be ready to use in `./bin`. A Doxygen documentation for the library is also generated in `./doc`.
+Once built, OpenFaceTracker library binaries will be in `/lib` and the OpenFaceTracker Application will be ready to use in `/bin`. A Doxygen documentation for the library is also generated in `/doc`.
 
 We will discuss the application usage now. To use the library, please refer to the generated documentation.
 
@@ -81,7 +82,8 @@ We will discuss the application usage now. To use the library, please refer to t
 
 There is no difference in usage between Linux or Windows.
 
-A configuration file for oftapp is located in `./data/config.json`. It defines path to data files relative to working directory being `./bin` (home of `oftapp`).
+A configuration file for oftapp is located in `./data/config.json`. It defines path to data files used by OFT modules.
+Please note all the path are relative to the location of the executable, `/bin` by default.
 
 #### Options :
 
@@ -92,50 +94,50 @@ A configuration file for oftapp is located in `./data/config.json`. It defines p
 
 >Displays version
 ```
-/OpenFaceTracker/bin>oftapp --help
+/OpenFaceTracker/bin>oftapp --version
 ```
 
 >Opens the first connected webcam and do facial analysis in real time
 ```
-/OpenFaceTracker/bin>oftapp -d CAM0
+/OpenFaceTracker/bin>oftapp --device CAM0
 ```
 
 >Reads a local image file and do facial analysis
 ```
-/OpenFaceTracker/bin>oftapp -i "path/to/image.png"
+/OpenFaceTracker/bin>oftapp --image "path/to/image.png"
 ```
 
 >Reads a local video file and do facial analysis
 ```
-/OpenFaceTracker/bin>oftapp -p "path/to/video.mp4"
+/OpenFaceTracker/bin>oftapp --player "path/to/video.mp4"
 ```
 
 >Downloads the youtube video in './tmp' and do facial analysis on cached file
 ```
-/OpenFaceTracker/bin>oftapp -p https://www.youtube.com/watch?v=dQw4w9WgXcQ
+/OpenFaceTracker/bin>oftapp --player https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
 >Downloads a remote file in './tmp' and do facial analysis
 ```
-/OpenFaceTracker/bin>oftapp -u https://url.to/a/remote/file.jpg
+/OpenFaceTracker/bin>oftapp --image https://url.to/a/remote/file.jpg
 ```
 
 >Opens the webcam and only detect faces. A sample is taken each frame the user left clicks. While exiting, "John" will be inserted in database with its associated data.
 ```
-/OpenFaceTracker/bin>oftapp -d CAM0 -a John
+/OpenFaceTracker/bin>oftapp --device CAM0 --add John
 ```
 
 >The same as above but each detected face at every frame is taken as sample for inserting or updating "John". Use with caution!
 ```
-/OpenFaceTracker/bin>oftapp -d CAM0 -a John -y
+/OpenFaceTracker/bin>oftapp --device CAM0 --add John --yes
 ```
 
 >Works with every source given
 ```
-/OpenFaceTracker/bin>oftapp -i "../path/to/source.jpeg" -a Smith -y
+/OpenFaceTracker/bin>oftapp --image "../path/to/source.jpeg" --add Smith --yes
 ```
 
-## Explications
+## Principles
 
 In this section will be discussed the technologies and algorithms currently used for each modules. Please note the project is still in developpement and these algorithms will be improved in the future, their usage and operation are subject to changes.
 
@@ -150,7 +152,7 @@ Despite all these disavantages, we still use this method over [newer methods](ht
 
 ### Recognition
 
-The recognition module is the heart of this project. The general idea of recognition is to represent face images (which are high-dimensional vectors) in a lower-dimension space that can be seen as a universe in which exists only the known faces ; where they are represented as a point. When many faces populates a vector space accurately, their distances between each other tend to act as a "similarity score". The closest two faces are represented, the more similar they are.
+The recognition module is the heart of this project. The general idea of recognition is to represent face images (which are high-dimensional vectors) in a lower-dimension space that can be seen as a universe in which exists only the known faces ; where they are represented as a point. When many faces populates a vector space accurately, their distances between each other tend to act as a *similarity score*. The closest two faces are represented, the more similar they are.
 
 >#### Eigenface
 
@@ -170,6 +172,7 @@ Another advantage of using these faces is that they are always centered and the 
 
 ## TODO
 
+- [ ] Add static library compilation
 - [ ] Implement JSON file writing and propose -o|--output option
 - [ ] Add configuration file linkage via oftapp option
 - [ ] Build Doxygen documentation and publish in Github Pages
@@ -177,9 +180,24 @@ Another advantage of using these faces is that they are always centered and the 
 - [ ] Improve face alignement (Delaunay triangulation and warp)
 - [ ] Improve data averageing and check variance
 - [ ] Implement full cmd line option for app
+- [ ] Implement Web API
+- [ ] Export to support python
+
+## Authors
+
+#### Original idea & project management: 
+* Richard REY (aka Rexy)
+
+#### Developement
+* Maxime BEASSE
+* Hethsron Jedaël BOUEYA
+* Tony DELHOMMAIS
+* Camille LAURENCE
 
 ## Acknowledgments
 
-- [OpenCV](https://opencv.org/)
-- [Learn OpenCV](https://www.learnopencv.com/)
-- [youtube-dl](https://youtube-dl.org/)
+- Thanks to Lionel PREVOST, Research Director at Groupe ESIEA, for his help and support in developping new recognition techniques.
+
+## Licence
+
+GPL v3
