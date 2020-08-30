@@ -60,6 +60,7 @@
 	#include <string>
 	#include <oft/backend.hpp>
 	#include <oft/explorer.hpp>
+	#include <oft/facialdetection.hpp>
 	#include <oft/handlerdraw.hpp>
 	#include <oft/handlerlog.hpp>
 	#include <opencv2/face.hpp>

@@ -435,7 +435,7 @@ namespace oft {
 	void FacialRecognition::alignFace(cv::Mat frame, cv::Mat dst, std::vector<cv::Point2f> landmarks) {
 
 		if (landmarks.empty() || landmarks.size() < 68)
-			throw std::exception("Assertion failed : (!landmarks.empty() && landmarks.size() >= 68)");
+			throw std::logic_error("Assertion failed : (!landmarks.empty() && landmarks.size() >= 68)");
 
 		// Eyes and chin landmarks (mean)
 		const cv::Point2f pointsDst[3] = {
@@ -465,7 +465,7 @@ namespace oft {
 		std::vector<std::vector<cv::Point2f>> landmarks;
 
 		if(!facemarker->fit(frame, pos, landmarks))
-			throw std::exception("Error : Face marking failed");
+			throw std::runtime_error("Error : Face marking failed");
 
 		// Eyes and chin landmarks (mean)
 		const cv::Point2f pointsDst[3] = {

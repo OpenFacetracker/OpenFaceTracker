@@ -23,7 +23,7 @@ project(${PROG_NAME})
 # Treat all warnings as error
 if (UNIX)
     if (CMAKE_COMPILER_IS_GNUCC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
         set(CMAKE_CXX_STANDARD 11)
@@ -37,6 +37,10 @@ elseif (WIN32)
         set(CMAKE_CXX_STANDARD 11)
         set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
     endif (MSVC14)
+    # Move lib dll from /lib to /bin POST_BUILD
+    add_custom_command(TARGET ${PROG_NAME} POST_BUILD
+	      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib/${LIB_NAME}.dll ${CMAKE_SOURCE_DIR}/bin/${LIB_NAME}.dll
+    )
 endif (UNIX)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/libsrc)
@@ -59,8 +63,3 @@ link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # Link executable to library
 target_link_libraries(${PROG_NAME} ${LIB_NAME})
-
-# Move lib dll from /lib to /bin POST_BUILD
-add_custom_command(TARGET ${PROG_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib/${LIB_NAME}.dll ${CMAKE_SOURCE_DIR}/bin/${LIB_NAME}.dll
-)

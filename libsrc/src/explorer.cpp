@@ -220,13 +220,15 @@ namespace oft {
 			// If libcurl easy session is initialized
 
 			// Create new file (c-style)
-			FILE* cache = NULL;
-			errno_t status = fopen_s(&cache, oldpath.c_str(), "wb");
-
-			if(!cache || status) {
-
+			FILE* cache = fopen(oldpath.c_str(), "wb");
+			if(!cache) {
+                int status = errno;
                 char err_msg[256];
+                #ifdef WIN32
                 strerror_s(err_msg, 256, status);
+                #else 
+                strerror_r(status, err_msg, 256);
+                #endif
 
 				// Report error
 				std::cerr << err_msg << std::endl;
@@ -478,6 +480,13 @@ namespace oft {
         return std::make_tuple(height, width);
     }
 
+    static char digest2hexaChar(char digest) {
+        // Assume that (digest < 16)
+        if (digest < 0xa)
+            return digest + '0';
+        else return digest + 'a';
+    }
+
     std::string Explorer::sha256Sum(const std::string& message) {
         unsigned char digest[Sha256::DIGEST_SIZE];
         memset(digest, 0, Sha256::DIGEST_SIZE);
@@ -490,7 +499,8 @@ namespace oft {
         buf[2*Sha256::DIGEST_SIZE] = 0;
 
         for (char i = 0; i < char(Sha256::DIGEST_SIZE); i++) {
-            sprintf_s(buf + (char(i) * char(2)), Sha256::DIGEST_SIZE, "%02x", digest[i]);
+            buf[2 * i + 0] = digest2hexaChar(digest[i] & 0xF);
+            buf[2 * i + 1] = digest2hexaChar(digest[i] >> 4);
         }
 
         return std::string(buf);

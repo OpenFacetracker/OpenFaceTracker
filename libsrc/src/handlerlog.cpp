@@ -19,7 +19,11 @@ namespace oft {
         char buffer[80];
 
         // Get locale time zone
-        errno_t err = localtime_s(&locale_time_zone , &system_clock);
+        #ifdef WIN32
+        errno_t err = localtime_s(&locale_time_zone, &system_clock);
+        #else
+        auto err = localtime_r(&system_clock, &locale_time_zone);
+        #endif
 
         if (err)
             throw("Invalid argument to localtime_s.");

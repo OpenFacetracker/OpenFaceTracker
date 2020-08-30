@@ -24,7 +24,7 @@ message("Library build started")
 # Treat all warnings as error
 if (UNIX)
     if (CMAKE_COMPILER_IS_GNUCC)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
         set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast")
         set(CMAKE_CXX_STANDARD 11)
@@ -64,7 +64,7 @@ if (UNIX)
 	include(FindPkgConfig)
 
 	# Check OPENCV_LIBRARIES and OPENCV_INCLUDE_DIRS
-	pkg_check_modules(OPENCV REQUIRED opencv)
+	pkg_check_modules(OPENCV REQUIRED opencv4)
 
 	# Check JSON-C_LIBRARIES
 	pkg_check_modules(JSON-C REQUIRED json-c)
@@ -118,7 +118,7 @@ if (CURL_FOUND)
     # Link a target to given libraries
     if (UNIX)
         if (CMAKE_COMPILER_IS_GNUCC)
-            #target_link_libraries(${LIB_NAME} PUBLIC nlohmann-json ${OPENCV_LIBRARIES} ${CURL_LIBRARIES} ${X11_LIBRARIES} cppdb ${Boost_LIBRARIES})
+            target_link_libraries(${LIB_NAME} PUBLIC ${OPENCV_LIBRARIES} ${CURL_LIBRARIES} ${X11_LIBRARIES} cppdb ${Boost_LIBRARIES})
         endif (CMAKE_COMPILER_IS_GNUCC)
     elseif (WIN32)
 		if (MSVC14)

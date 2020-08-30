@@ -79,7 +79,11 @@ namespace oft {
 			struct tm locale_time_zone;
 
 			// Get locale time zone
+			#ifdef WIN32
 			errno_t err = localtime_s(&locale_time_zone, &system_clock);
+			#else
+			auto err = localtime_r(&system_clock, &locale_time_zone);
+			#endif
 
 			if (err)
 				throw("Invalid argument to localtime_s.");
@@ -116,7 +120,11 @@ namespace oft {
 			struct tm locale_time_zone;
 
 			// Get locale time zone
+			#ifdef WIN32
 			errno_t err = localtime_s(&locale_time_zone, &system_clock);
+			#else
+			auto err = localtime_r(&system_clock, &locale_time_zone);
+			#endif
 
 			if (err)
 				throw("Invalid argument to localtime_s.");
