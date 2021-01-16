@@ -11,7 +11,7 @@ Installation scripts for both Linux and Windows are available to configure the w
 - Windows or Linux (Ubuntu, Debian/Kali, Mageia or CentOS), x64 is preferable
 - GUI, since OFT does not support command-line only mode yet
 - [Git](https://git-scm.com/downloads)
-- [Visual Studio 2017](https://docs.microsoft.com/fr-fr/visualstudio/install/install-visual-studio?view=vs-2019) or newer with C++ Dev Tools (Windows only)
+- [Visual Studio 2017](https://docs.microsoft.com/fr-fr/visualstudio/install/install-visual-studio?view=vs-2019) or newer with C++ Dev Tools and English language package (Windows only)
 - [PowerShell](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-7) with admin priviledges (Windows only)
 
 ### Installing
