@@ -5,6 +5,7 @@ tmp/
 var/
 doc/*
 !doc/Doxyfile.in
+!doc/*.pdf
 database/
 .vscode/
 *.bat
