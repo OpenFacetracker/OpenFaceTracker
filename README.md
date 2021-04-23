@@ -19,7 +19,7 @@ Installation scripts for both Linux and Windows are available to configure the w
 To install the project, the easiest way is to clone the repository to your computer. We recommend you choose a short path like `C:\OpenFaceTracker` with no spaces or special characters.
 
 ```cmd
-> git clone https://github.com/MaximeBeasse/OpenFaceTracker
+> git clone https://github.com/OpenFacetracker/OpenFaceTracker
 ```
 
 #### Linux :
