@@ -100,7 +100,7 @@ namespace oft {
 
 			// Lowercase
 			std::for_each(extension.begin(), extension.end(), [] (char& c) {
-				c = std::tolower(c);
+				c = (char)std::tolower(c);
 			});
 
             // Verifying extension
