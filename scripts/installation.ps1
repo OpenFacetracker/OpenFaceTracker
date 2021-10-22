@@ -127,7 +127,7 @@ Write-Output ""
 
 # Vcpkg directory
 #$DirectoryPath = "$env:USERPROFILE\vcpkg"
-$DirectoryPath = "D:\dev\vcpkg"
+$DirectoryPath = "C:\dev\vcpkg"
 
 # Check if vcpkg directory already exist and create it if isin't
 if(Test-Path $DirectoryPath -PathType Container) {
