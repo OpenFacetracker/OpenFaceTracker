@@ -93,8 +93,8 @@ file(REMOVE_RECURSE `"`$`{CURRENT_PACKAGES_DIR`}/debug/include`")"
 
 # List of the differents packages to install
 $PackagesToInstall =  "opencv",
-					  "opencv4[contrib]",
-					  "opencv4[ffmpeg]",
+                      "opencv4[contrib]",
+                      "opencv4[ffmpeg]",
                       "curl",
                       "json-c",
                       "sqlite3[tool]",
