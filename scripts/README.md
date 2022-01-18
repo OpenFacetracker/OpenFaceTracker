@@ -25,6 +25,8 @@ These scripts will install the necessary packages using the default package mana
 
 Launch Powershell with admin privileges.
 
+The default path for downloading and installating the packages is "C:\dev\", you can change the path at line 130.
+
 ```
 PS C:\OpenFaceTracker\scripts> ./installation.ps1
 ```

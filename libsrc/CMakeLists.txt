@@ -93,7 +93,7 @@ elseif (WIN32)
 	# Include directories of headers
 	target_include_directories(${LIB_NAME} PUBLIC ${INCLUDEDIR})
 
-	find_package(Boost CONFIG)
+	find_package(Boost REQUIRED COMPONENTS filesystem)
 
 	#include CPPDB library
 	find_path(CPPDB_INCLUDE_DIR cppdb/backend.h)
