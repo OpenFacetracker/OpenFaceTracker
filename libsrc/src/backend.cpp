@@ -125,8 +125,8 @@ namespace oft {
 			cppdb::statement stat;
 
 			// Update entry
-			stat = sql << "UPDATE Person SET Label = ?, NB_Samples = ?, Data = ?"
-				<< label << nb_Samples << is;
+			stat = sql << "UPDATE Person SET Label = ?, NB_Samples = ?, Data = ? WHERE Label = ?"
+				<< label << nb_Samples << is << label;
 			stat.exec();
 
 			result = true;

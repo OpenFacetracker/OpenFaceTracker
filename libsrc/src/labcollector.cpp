@@ -1,5 +1,6 @@
 #include <oft/labcollector.hpp>
 
+
 namespace oft {
 
 #ifdef oft_EXPORTS
@@ -38,7 +39,7 @@ namespace oft {
 
         // Define video capturing object
         cv::VideoCapture cap;
-
+		std::vector<std::string> vtr;
 		int videoAPIWebcam = 0;
 #ifdef __linux__
 		videoAPIWebcam = cv::VideoCaptureAPIs::CAP_V4L;
@@ -120,7 +121,7 @@ namespace oft {
                 // Check if array has no elements
                 if (frame.empty()) {
                     // Wait for a pressed key
-                    cv::waitKey();
+                    //cv::waitKey();
                     // Break the loop
                     break;
                 }
@@ -145,6 +146,15 @@ namespace oft {
                     if (label.empty()) {
 						// Retrieve this face's result
 						std::tie(prediction, confidence) = predictions[i];
+						bool tmp = true;
+						for(int j = 0; j< vtr.size() ; j++){
+							if(prediction == vtr[j]){
+								tmp = false;
+								break;
+							}
+						}
+						if(tmp)
+							vtr.push_back(prediction);					
                     }
 					else {
                         if (!confirmation || clicked == 1) {
@@ -179,15 +189,18 @@ namespace oft {
 
             if (nbSamples > 0)
                 fr.add_Person(averageProjection, label, nbSamples);
+				
         }
         else {
 			HandlerLog::log("Video feed could not be opened " + std::string(streaming));
             std::cout << "Video feed could not be opened" << std::endl;
-        }
+        }		
 
 		// Release Video Capture
 		cap.release();
 
+		for(int i=0; i < vtr.size(); i++)
+			std::cout << vtr[i] << "\n";
 		// Close all OpenCV windows
 		cv::destroyAllWindows();
     }
@@ -195,7 +208,6 @@ namespace oft {
     void LabCollector::ImageAnalysis(char file[], std::string label, bool confirmation) {
         // Load the image
         cv::Mat frame = cv::imread(file, cv::IMREAD_COLOR);
-
         // Check if frame empty
         if (!frame.empty()) {
 
@@ -262,7 +274,7 @@ namespace oft {
 					if(confidence < 0.0)
 						std::cout << i << "/" << pos_faces.size() << " : UNKNOWN" << std::endl;
 					else
-						std::cout << i << "/" << pos_faces.size() << " : " << prediction << " (" << std::fixed << std::setprecision(2) << confidence << ")" << std::endl;
+						std::cout << i+1 << "/" << pos_faces.size() << " : " << prediction << " (" << std::fixed << std::setprecision(2) << confidence << ")" << std::endl;
 
 					// Draw UI over this detected face
 					HandlerDraw::drawUI(frame, pos_faces[i], prediction, confidence);
@@ -271,9 +283,12 @@ namespace oft {
 
             if (label.empty()){
                 cv::imshow("frame,", frame);
-                cv::waitKey();
+                //cv::waitKey();
             }
         }
+		else{
+			std::cout << "Frame empty" << std::endl;
+		}
     }
 
     bool LabCollector::askConfirmation() {

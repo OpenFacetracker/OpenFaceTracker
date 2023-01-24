@@ -392,10 +392,12 @@ namespace oft {
 					}
 				}
 
-				if (minDist > this->threshold || minDist < 0.0)
-					result.push_back(std::make_tuple(std::string("UNKOWN"), -1.0));
-				else
+				if (minDist > this->threshold || minDist < 0.0){
+					result.push_back(std::make_tuple(std::string("UNKNOWN"), -1.0));
+				}			
+				else{
 					result.push_back(std::make_tuple(std::get<1>(gallery_data)[indexBestMatch], minDist));
+				}
 			}
 		}
 
@@ -515,6 +517,7 @@ namespace oft {
 
 			nb_Samples = N;
 		}
+		
 
 		// serialize cv::Mat to std::stringstream
 		std::stringstream ss;

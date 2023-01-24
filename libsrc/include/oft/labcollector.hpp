@@ -73,7 +73,11 @@
     #include <opencv2/opencv.hpp>
 	#include <opencv2/videoio/registry.hpp>
 	#include <oft/defs.hpp>
+    #include <iostream>
+    #include <string>
+    #include <vector>
     #include <tuple>
+    
 #endif // ! __linux__ or _WIN32
 
 namespace oft {
